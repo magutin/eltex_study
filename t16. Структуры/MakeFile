@@ -1,0 +1,19 @@
+BIN := strct_task
+SOURCES := struct_list.c struct_task.c 
+HEADERS := struct_task.h
+
+
+
+CC := gcc
+
+.PHONY := all clean
+
+all: $(BIN)
+
+$(BIN): 
+		$(CC) $(SOURCES) -o $(BIN)	
+
+$(BIN): $(HEADERS)
+
+clean: 
+		rm -rf $(BIN)
