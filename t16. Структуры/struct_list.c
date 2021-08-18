@@ -66,7 +66,7 @@ strct_ph_dir *interface(strct_ph_dir *pStruct){
 		}
 		
 	}while(exit!=0);
-	return ptr;
+	return pStruct;
 }
 
 
@@ -119,8 +119,10 @@ strct_ph_dir *add_abonent(strct_ph_dir *pStruct)
   	pStruct->pNext = temp; // предыдущий узел указывает на создаваемый
   
   	temp->id_abonent = pStruct->id_abonent+1; // сохранение поля данных добавляемого узла
+  	printf("Name: ");
   	fgets(temp->name,30,stdin);
   	fflush(stdin);
+  	printf("Number: ");
   	fgets(temp->number,15,stdin);
   	fflush(stdin);
   
@@ -131,8 +133,10 @@ strct_ph_dir *add_abonent(strct_ph_dir *pStruct)
   	pStruct = (strct_ph_dir*)malloc(sizeof(strct_ph_dir));
   	//strncpy(pStruct->name,"Sergey Magutin\n",15);
  		//strncpy(pStruct->number,"89824125111\n",12);
+ 		printf("Name :");
   	fgets(pStruct->name,30,stdin);
   	fflush(stdin);
+  	printf("Number :");
   	fgets(pStruct->number,15,stdin);
   	fflush(stdin);
    	pStruct->id_abonent = 1;
