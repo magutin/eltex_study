@@ -4,12 +4,13 @@ int main() {
 	char txt_ans[23] = "Server reciev msg time:";
 	char answer[80];			// буфер ответа
 	char reciev[80];			// буфер приема
-	int file_desc_srv;			// файловый дескриптор сервера
-	int file_desc_cln;			// файловый дескриптор клиента
-	socklen_t sock_len;
+	int file_desc;			// файловый дескриптор сервера
+	//int file_desc_cln;			// файловый дескриптор клиента
+
 	struct timeval tv;			// структура времени
  	struct tm* ptm;				
  	char time_string[40];		// строка для хранения времени
+ 	socklen_t sock_len;
  	long ms;
 
 	struct sockaddr_in cln;		// стуктура для свервера и клиента
@@ -23,35 +24,21 @@ int main() {
     srv.sin_port = htons(TCP_PORT); 			// конвертируем данные из узлового порядка расположения байтов в сетевой 
 
 
-	if((file_desc_srv = socket(AF_INET, SOCK_STREAM, 0)) == -1) {	//получаем дискриптор сокета сервера
+	if((file_desc = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {	//получаем дискриптор сокета сервера
 		perror("ERR: line 24, socket():");
 		exit(1);
 	}
 
-	printf("Server socket id: %d\n",file_desc_srv);
+	printf("Server socket id: %d\n",file_desc);
 
-	if(bind(file_desc_srv, (struct sockaddr *)&srv, sizeof(srv)) == -1) {		// назначаем имя сокету
+	if(bind(file_desc, (struct sockaddr *)&srv, sizeof(srv)) == -1) {		// назначаем имя сокету
 		perror("ERR: line 29. bind():");
 		exit(1);
 	}
-
-
-	sock_len = sizeof(srv);
-
-	if ((listen(file_desc_srv, 5)) == -1) { 			// готовность принимать пакеты и задаем размер очереди 
-        	perror("ERR: line 36. listen():"); 
-        	exit(1); 
-    	}
-
-    if((file_desc_cln = accept(file_desc_srv, (struct sockaddr *)&cln, &sock_len)) == -1) {		// принять соединение на сокете
-    		perror("ERR: line 43. accept():");
-    		exit(1);
-    	}
-    		
+    
+    sock_len = sizeof(cln);
 	while(1) {
-		
-    	printf("Client socket id: %d\n",file_desc_cln);
-		if(recv(file_desc_cln, reciev, sizeof(reciev), 0) == -1) {
+		if( recvfrom(file_desc, reciev, sizeof(reciev), MSG_WAITALL, (struct sockaddr*)&cln, &sock_len ) == -1) {
 			perror("ERR: line 49. recv():");
 			exit(1);
 		}
@@ -67,7 +54,7 @@ int main() {
 
 		strcat(answer, txt_ans);
 		strcat(answer,time_string);
-		if(send(file_desc_cln, answer, strlen(answer), 0) == -1) {
+		if(sendto(file_desc, answer, strlen(answer), MSG_CONFIRM, (struct sockaddr*)&cln, sock_len) == -1) {
 			perror("ERR: line 58. send():");
 			exit(1);
 		}
