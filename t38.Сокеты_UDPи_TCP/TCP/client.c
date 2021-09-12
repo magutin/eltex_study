@@ -1,5 +1,6 @@
 #include "head.h"
 
+
 int main() {
 	int file_desc_srv;		// id сокета сервера
 	char answer[80];		// буфер для посылки
