@@ -18,13 +18,11 @@
 #include <sys/wait.h>
 #include <pthread.h>
 
-#define TCP 20
-#define UDP 8
-
-#define S_IP_ad "192.168.1.4" 
-
 #define SRV_TCP_SPORT 60400	// порт сервера
 #define SRV_TCP_DPORT 60401	// порт клиента
+
+#define UDP_SPORT 60402	// порт сервера
+#define UDP_DPORT 60403	// порт клиента
 
 #pragma pack(push,1)
 /*  Заголовок IP. Сумма байт=20 */

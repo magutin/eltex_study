@@ -1,5 +1,6 @@
+#include "heads.h"
 /* UDP сокет ,который будет создан серверу если выберут тип пакета UDP*/
-
+/*
 void* thread_tcp_sock(){
 	char txt_ans[23] = "Server reciev msg time:";
 	char answer[92];						// буфер ответа
@@ -45,7 +46,7 @@ void* thread_tcp_sock(){
   	sock_srv.sin_port = htons(S_PORT); 	 // конвертируем данные из узлового порядка расположения байтов в сетевой 
 
     socklen_t sock_len = sizeof(sock_srv);			// узнаем размер сокета
-	
+*/
 	/*if ((listen(fd_sock_srv, 10)) == -1) { 			// готовность принимать пакеты и задаем размер очереди 
        	perror("ERR: line 36. listen():"); 
        	exit(1); 
@@ -56,7 +57,7 @@ void* thread_tcp_sock(){
     	exit(1);
     }*/
     //while(1){
-    for(int i = 0;i<10;i++){
+/*    for(int i = 0;i<10;i++){
 		if(recvfrom(fd_sock_srv, reciev, sizeof(reciev), MSG_WAITALL, (struct sockaddr*)&sock_cln, &sock_len) == -1) {
 			perror("Recvfrom:\n\r");
 			exit(1);
@@ -96,7 +97,7 @@ void* thread_tcp_sock(){
     close(fd_sock_srv);
     printf("[Socket TCP] - Socket closed\n\r");					// опции установлены
     return 0;
-}
+}*/
 
 
 /* UDP сокет ,который будет создан серверу если выберут тип пакета UDP*/
@@ -111,9 +112,13 @@ void* thread_udp_sock(){
 	struct sockaddr_in sock_srv;
 	struct sockaddr_in sock_cln;
 
-	struct ip_h ip_hdr_rcv;
+	//struct ip_h ip_hdr_rcv;
 	//struct udp_h udp_hdr_rcv;
 	struct udphdr udp_hdr_rcv;
+	struct iphdr ip_hdr_rcv;
+
+	struct udphdr udp_hdr_snd;
+	struct iphdr ip_hdr_snd;
 	
 	struct timeval tv;			// структура времени
  	struct tm* ptm;				
@@ -143,7 +148,7 @@ void* thread_udp_sock(){
 
 	sock_srv.sin_family = AF_INET;  			  // в структуре сервера говорим,о соединении типа IPv4
     	sock_srv.sin_addr.s_addr = htonl(INADDR_ANY);   // все адреса локальной сети 0.0.0.0
-    	sock_srv.sin_port = htons(S_PORT); 			  // конвертируем данные из узлового порядка расположения байтов в сетевой 
+    	sock_srv.sin_port = htons(UDP_SPORT); 			  // конвертируем данные из узлового порядка расположения байтов в сетевой 
 
  	socklen_t sock_len = sizeof(sock_srv);			// узнаем размер сокета
     	for(int i = 0;i<10;i++){
@@ -159,10 +164,39 @@ void* thread_udp_sock(){
 
 		memcpy(&ip_hdr_rcv,&reciev[0],20);
 		memcpy(&udp_hdr_rcv,&reciev[20],8);
-		if(ntohs(udp_hdr_rcv.dest)==S_PORT){
-			printf("[UDP <-rcv] prot=%u\n\r",ip_hdr_rcv.PROTOCOL);
+		if(ntohs(udp_hdr_rcv.dest)==UDP_SPORT){
+			
+			//memcpy(&ip_hdr_snd,&ip_hdr_rcv,sizeof(struct iphdr));
+			//memcpy(&udp_hdr_snd,&udp_hdr_rcv,sizeof(struct udphdr));
+			ip_hdr_snd.version = 4;//ip_hdr_rcv.version;
+			ip_hdr_snd.ihl = 5;//ip_hdr_rcv.ihl;
+			ip_hdr_snd.tos = 0;//ip_hdr_rcv.tos;
+    		ip_hdr_snd.tot_len = htons(92);//ip_hdr_rcv.tot_len;
+    		ip_hdr_snd.id = 500;//ip_hdr_rcv.id;
+    		ip_hdr_snd.frag_off = 0;//ip_hdr_rcv.frag_off;
+    		ip_hdr_snd.ttl = 65;
+    		ip_hdr_snd.protocol = IPPROTO_UDP;//ip_hdr_rcv.protocol;
+    
+			ip_hdr_snd.saddr=ip_hdr_rcv.daddr;
+			/*printf("ver=%d\n",ip_hdr_rcv.version);
+			printf("ihl=%d\n",ip_hdr_rcv.ihl);
+			printf("tos=%d\n",ip_hdr_rcv.tos);
+			printf("tot_len=%d\n",ip_hdr_rcv.tot_len);
+			printf("id=%d\n",ip_hdr_rcv.id);
+			printf("frag_off=%d\n",ip_hdr_rcv.frag_off);
+			printf("ttl=%d\n",ip_hdr_rcv.ttl);
+			printf("protocol=%d\n",ip_hdr_rcv.protocol);*/
+			ip_hdr_snd.daddr=ip_hdr_rcv.saddr;
+			memcpy(&answer[0],&ip_hdr_snd,sizeof(struct iphdr));
+
+			udp_hdr_snd.source = udp_hdr_rcv.dest;
+			udp_hdr_snd.dest = udp_hdr_rcv.source;
+			udp_hdr_snd.len = udp_hdr_rcv.len;
+			memcpy(&answer[20],&udp_hdr_snd,8);
+			
+			printf("[UDP <-rcv] prot=%u ",ip_hdr_rcv.protocol);
 			//printf("\tdp=%u\tsp=%u\tcrc=%u\tlen=%u\n",ntohs(udp_hdr_rcv.DPORT),ntohs(udp_hdr_rcv.SPORT),ntohs(udp_hdr_rcv.CRC),ntohs(udp_hdr_rcv.LEN));
-			printf("\tdp=%u\tsp=%u\tcrc=%u\tlen=%u\n\r",ntohs(udp_hdr_rcv.dest),ntohs(udp_hdr_rcv.source),ntohs(udp_hdr_rcv.check),ntohs(udp_hdr_rcv.len));
+			printf("dp=%u sp=%u crc=%u len=%u\n\r",ntohs(udp_hdr_rcv.dest),ntohs(udp_hdr_rcv.source),ntohs(udp_hdr_rcv.check),ntohs(udp_hdr_rcv.len));
 
 			strcat(answer, txt_ans);
 			strcat(answer,time_string);
@@ -171,7 +205,10 @@ void* thread_udp_sock(){
 				perror("Sendto:\r");
 				exit(1);
 			}
-			printf("[UDP snd->] prot=%u\n\r",ip_hdr_rcv.PROTOCOL);
+			printf("[UDP snd->] prot=%u ",ip_hdr_snd.protocol);
+			//printf("\tdp=%u\tsp=%u\tcrc=%u\tlen=%u\n",ntohs(udp_hdr_rcv.DPORT),ntohs(udp_hdr_rcv.SPORT),ntohs(udp_hdr_rcv.CRC),ntohs(udp_hdr_rcv.LEN));
+			printf("dp=%u sp=%u crc=%u len=%u\n\r",ntohs(udp_hdr_snd.dest),ntohs(udp_hdr_snd.source),ntohs(udp_hdr_snd.check),ntohs(udp_hdr_snd.len));
+
 			//printf("\t[UDP->]: %s %s\n",txt_ans,time_string);
 		}
 

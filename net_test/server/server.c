@@ -1,6 +1,7 @@
 #include <curses.h>
 //#include <termios.h>
 #include "heads.h"
+#include "sockets.h"
 
 
 struct cmd_settings settings;
@@ -110,6 +111,17 @@ int main(){
 							i = 8;
 							printf("%s",cmd);				
 						}
+						if (strstr(&cmd[4],"t")!=NULL){
+							len = strlen(cmd);
+							for(k = 0;k<len;k++){
+								printf("\b");	
+								delch();
+							}
+							//strcpy(cmd,"");
+							strcpy(&cmd[4],"turnoff ");
+							i = 12;
+							printf("%s",cmd);				
+						}
 						if (strstr(&cmd[4],"p")!=NULL){
 							len = strlen(cmd);
 							for(k = 0;k<len;k++){
@@ -188,7 +200,13 @@ int main(){
 				if (strstr(cmd,"run") != NULL){
 					// recv set cmd param
 					if(cmd_parser(cmd,strlen(cmd))==1){
-						cmd_sender(fd_sock,sock);
+						
+						if(ntohs(settings.type_ptk)==2 && ntohs(settings.cmd)==1){
+							cmd_sender(fd_sock,sock);
+							pthread_create(&tid[1], NULL,thread_udp_sock,0);	// поток для сокета UDP			
+							pthread_join(tid[1], NULL);							// поток с ожиданием завершения
+						}
+						
 					}
 					strncpy(cmd,"",40);	
 					/*if(sendto(fd_sock, &settings, sizeof(settings), 0, (struct sockaddr*)&sock, sizeof(sock)) == -1) {
@@ -247,10 +265,6 @@ int cmd_parser(char* buf,int len_buf){
     
     tokens[0] = strtok_r(rest," ",&rest);
     
-    /*while(tokens[cnt] != NULL) {
-        tokens[++cnt] = strtok_r(NULL, " ");
-    }
-    */
     while ((tokens[cnt] = strtok_r(rest, " ", &rest))){
         cnt++;
    	}
@@ -272,7 +286,7 @@ int cmd_parser(char* buf,int len_buf){
    			settings.cmd = htons(3);
    			return 1;
    		}
-   		if(strstr(tokens[1],"shutdown")){
+   		if(strstr(tokens[1],"turnoff")){
    			settings.cmd = htons(4);
    			return 1;
    		}
@@ -325,11 +339,11 @@ int cmd_parser(char* buf,int len_buf){
     		printf("\tSetting for test ping:\n\r");
     		settings.cmd = htons(6);
 
-    		settings.cnt_ptk = atoi(tokens[2]);
+    		settings.cnt_ptk = htons(atoi(tokens[2]));
     		printf("\tCount package:\t%d\n\r",settings.cnt_ptk);
-    		settings.time_test = atoi(tokens[3]);
+    		settings.time_test = htons(atoi(tokens[3]));
     		printf("\tTesting time:\t%d\n\r",settings.time_test);
-    		settings.ip_cln = inet_addr(tokens[4]);
+    		settings.ip_cln = htonl(inet_addr(tokens[4]));
     		printf("\tСlient IP:\t%s\n\r",tokens[4]);
     		return 1;
 
@@ -411,7 +425,7 @@ void cmd_sender(int _socket_desk,struct sockaddr_in _sock){
 		}	
 
 		if(flag==0){
-			printf("\t[ !] Waiting...\n\r");
+		//	printf("\t[ !] Waiting...\n\r");
 			++cnt_attempt;				
 		}		
 		if (flag==1){
