@@ -1,10 +1,10 @@
-#include <curses.h>
-//#include <termios.h>
 #include "heads.h"
 #include "sockets.h"
 
 
 struct cmd_settings settings;
+
+
 pthread_t tid[5];
 
 int cmd_parser(char* _buf,int _len_buf);
@@ -34,21 +34,22 @@ int main(){
 
     // Сокет UDP будет посылать настройки для теста клиенту
     if((fd_sock = socket(AF_INET, SOCK_RAW,IPPROTO_UDP)) == -1) {	//получаем дискриптор сокета сервера
-		perror("ERR: line 24, socket():\n\r");
+		perror("ERR: socket_srv():\n\r");
 		exit(1);
 	}
 	int on = 1;
 	if (setsockopt (fd_sock, IPPROTO_IP, IP_HDRINCL, (const char*)&on, sizeof (on)) == -1) {
-        perror("setsockopt");
+        perror("ERR: setsockopt_srv():");
         exit (1);
     }
 	if(bind(fd_sock, (struct sockaddr *)&sock, sizeof(sock)) == -1) {		// назначаем имя сокету
-		perror("ERR: line 29. bind():\n\r");
+		perror("ERR: bind_srv():\n\r");
 		exit(1);
 	}
 	
 	initscr();
-	filter();
+	cbreak();						// не дожидаемся нажатия enter
+	
 	//cbreak();
 	//int x,y;
 	printf("cli> ");
@@ -59,7 +60,6 @@ int main(){
 			case 0x09:// Обработка клавиши TAB
 				++iter;
 				if(iter==1){
-				
 					if(i <= 2){
 						if (cmd[0] == 'q'){
 							len = strlen(cmd);
@@ -206,42 +206,14 @@ int main(){
 							pthread_create(&tid[1], NULL,thread_udp_sock,0);	// поток для сокета UDP			
 							pthread_join(tid[1], NULL);							// поток с ожиданием завершения
 						}
-						
 					}
 					strncpy(cmd,"",40);	
-					/*if(sendto(fd_sock, &settings, sizeof(settings), 0, (struct sockaddr*)&sock, sizeof(sock)) == -1) {
-						perror("ERR: Command 'run' not send. send():");
-						exit(1);
-						break;
-					}*/
-					//printf("\n\rCommand 'run' send\n\r");
-					//pthread_create(&tid[0], NULL,thread_tcp_sock,0);	// поток для сокета TCP
-					//pthread_create(&tid[1], NULL,thread_udp_sock,0);	// поток для сокета UDP
-					//pthread_join(tid[0], NULL);							// поток с ожиданием завершения
-					//pthread_join(tid[1], NULL);							// поток с ожиданием завершения
 				}
 				printf("\n\rcli> ");
 				strncpy(cmd,"",40); //очищаем буфеr команд
 				iter = 0;
 				i=0;
 				break;
-			/*case 0x08:
-				len = strlen(cmd);
-				getsyx(x,y);
-				for(k=0;k<len;k++){
-					printf("\b");
-					delch();
-				}
-				
-				
-				i = i-1;
-				cmd[i] = ' '; 
-				setsyx(x,y-2);
-
-
-				printf("%s",cmd);
-				break;*/
-
 			default:	// обработка любых клафиш
 				cmd[i] = (char)sym;
 				printf("%c",cmd[i]);
@@ -474,3 +446,5 @@ unsigned short in_cksum(unsigned short *ptr, int nbytes)
 
     return (answer);
 }
+
+

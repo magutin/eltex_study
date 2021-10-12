@@ -12,7 +12,11 @@
 #include <netinet/ip.h>		// для ip заголовка
 #include <netinet/udp.h> 	// для udp заголовка
 #include <netinet/tcp.h>	// для TCP заголовка
+#include <sys/ioctl.h>
 
+#include <signal.h>
+#include <termios.h>
+#include <curses.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/wait.h>

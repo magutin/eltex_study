@@ -1,5 +1,23 @@
 #ifndef	HEADS_H
 #define	HEADS_H
+/*
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <sys/time.h>		// для gettimeofday
+#include <sys/types.h>		// для getpid
+#include <sys/socket.h>		// для сокета
+#include <netinet/ip.h>		// для ip заголовка
+#include <netinet/udp.h> 	// для udp заголовка
+#include <netinet/tcp.h>	// для TCP заголовка
+
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <pthread.h>
+*/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,6 +31,8 @@
 #include <netinet/udp.h> 	// для udp заголовка
 #include <netinet/tcp.h>	// для TCP заголовка
 
+#include <termios.h>
+#include <curses.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/wait.h>

@@ -1,4 +1,113 @@
 #include "heads.h"
+
+extern struct cmd_settings settings; // глобальная переменная структуры команд
+
+
+unsigned long get_time_s(){
+
+	struct timeval tv;			// структура времени
+	struct tm* ptm;	
+	unsigned long _time_s;
+
+	gettimeofday(&tv, NULL);	// Определение текущего времени
+	_time_s = tv.tv_sec;
+	//printf("[%ld]\n",_time_ms);	// милисекунды
+
+	return _time_s;
+}
+
+/* UDP сокет ,который будет создан серверу если выберут тип пакета UDP*/
+void* thread_udp_sock(){
+
+	struct sockaddr_in sock_srv;
+	int fd_sock_srv;
+	printf("\n\r\t[ !] Socket in work");
+	unsigned long work_time = (unsigned long)ntohs(settings.time_test);
+	int payload_len = ntohs(settings.len_ptk);
+	
+	int cnt_ptk = ntohs(settings.cnt_ptk);
+	int packet_size = sizeof (struct iphdr) + sizeof(struct udphdr) + payload_len; 
+	
+	//выделяем память под пакеты
+    char *snd_ptk = (char *) malloc (packet_size);	// буфер отправки
+    char *rcv_ptk = (char *) malloc (packet_size);	// буфер приема	
+    if(!snd_ptk || !rcv_ptk){
+    	perror("ERR: out of memory: rcv_ptk || snd_ptk");
+    	exit(1);}
+
+	struct iphdr *ip_hdr = (struct iphdr *) snd_ptk;
+	struct udphdr *udp_hdr = (struct udphdr *) (snd_ptk + sizeof (struct iphdr));	
+	
+		
+	// создаем сокет UDP
+	if((fd_sock_srv = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) == -1) {		//получаем дискриптор сокета UDP
+		perror("ERR: socket() for UDP\n\r");
+		exit(1);}
+	
+	//обещаем заполнить IP заголовок
+  	if(setsockopt(fd_sock_srv, IPPROTO_IP, IP_HDRINCL, &(int){1}, sizeof(int)) == -1) {
+	    perror("ERR: setsocket() for UDP\n\r");
+	    exit(1);}
+
+  	sock_srv.sin_family = AF_INET;  			  	// в структуре сервера говорим,о соединении типа IPv4
+   	sock_srv.sin_addr.s_addr = htonl(INADDR_ANY);   // все адреса локальной сети 0.0.0.0
+   	sock_srv.sin_port = htons(UDP_SPORT); 			// конвертируем данные из узлового порядка расположения байтов в сетевой 
+
+  	// назначаем имя сокету
+  	if(bind(fd_sock_srv, (struct sockaddr *)&sock_srv, sizeof(sock_srv)) == -1) {		
+		perror("ERR: bind() for UDP\n\r");									// сокету присвоено имя
+		exit(1);}
+
+	
+ 	socklen_t sock_len = sizeof(sock_srv);			// узнаем размер сокета
+
+ 	int i = 0;
+
+ 	unsigned long time = get_time_s();
+ 	unsigned long time_check;
+ 	
+   	while(i<cnt_ptk ){
+
+   		time_check = get_time_s();
+   		
+   		if ( (time_check-time)>work_time ){
+   			break;
+   		}
+		if(recvfrom(fd_sock_srv, rcv_ptk, packet_size, 0, (struct sockaddr*)&sock_srv, &sock_len) == -1) {
+			perror("Recvfrom:\n\r");
+			exit(1);
+		}
+
+		memcpy(snd_ptk,rcv_ptk,packet_size);
+		if(udp_hdr->dest==htons(UDP_SPORT)){
+			
+			ip_hdr->ttl = 65;
+			ip_hdr->saddr=ip_hdr->daddr;//ntohl(ip_hdr_rcv.daddr);
+			ip_hdr->daddr=ip_hdr->saddr;
+
+			udp_hdr->source = htons(UDP_SPORT);
+			udp_hdr->dest = htons(UDP_DPORT);
+			udp_hdr->len = udp_hdr->len;
+			
+			if(sendto(fd_sock_srv, snd_ptk, packet_size, 0, (struct sockaddr*)&sock_srv, sock_len) == -1) {
+				perror("Sendto:\r");
+				exit(1);
+			}
+			
+			i++;
+		}
+		memset(rcv_ptk,0,packet_size);
+		memset(snd_ptk,0,packet_size);
+    }
+    
+    close(fd_sock_srv);
+    printf("\n\r\t[ !] Socket closed");
+    //printf("[Socket UDP] - Socket closed\n\r");					// опции установлены
+    return 0;
+}
+
+
+
 /* UDP сокет ,который будет создан серверу если выберут тип пакета UDP*/
 /*
 void* thread_tcp_sock(){
@@ -99,124 +208,3 @@ void* thread_tcp_sock(){
     return 0;
 }*/
 
-
-/* UDP сокет ,который будет создан серверу если выберут тип пакета UDP*/
-void* thread_udp_sock(){
-	char txt_ans[23] = "Server reciev msg time:";
-	char answer[92];						// буфер ответа
-	char reciev[92];						// буфер приема
-
-	int fd_sock_srv;						// файловый дескриптор сокета сервера UDP
-	int fd_sock_cln;						// файловый дескриптор сокета клиента UDP
-	
-	struct sockaddr_in sock_srv;
-	struct sockaddr_in sock_cln;
-
-	//struct ip_h ip_hdr_rcv;
-	//struct udp_h udp_hdr_rcv;
-	struct udphdr udp_hdr_rcv;
-	struct iphdr ip_hdr_rcv;
-
-	struct udphdr udp_hdr_snd;
-	struct iphdr ip_hdr_snd;
-	
-	struct timeval tv;			// структура времени
- 	struct tm* ptm;				
- 	char time_string[40];		// строка для хранения времени
- 	long ms;
-
-	memset(&sock_srv, 0, sizeof(sock_srv)); // обнуляем структуру
-	memset(&sock_cln, 0, sizeof(sock_cln)); // обнуляем структуру
-
-	// создаем сокет UDP
-	if((fd_sock_srv = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) == -1) {		//получаем дискриптор сокета UDP
-		perror("ERR: socket() for UDP\n\r");
-		exit(1);}
-	printf("[Socket UDP] - Created. ID socket: %d\n\r",fd_sock_srv);		// id сокета
-	
-	//обещаем заполнить IP заголовок
-  	if(setsockopt(fd_sock_srv, IPPROTO_IP, IP_HDRINCL, &(int){1}, sizeof(int)) == -1) {
-	    perror("ERR: setsocket() for UDP\n\r");
-	    exit(1);}
-	printf("[Socket UDP] - Options for IP header set\n\r");					// опции установлены
-  	
-  	// назначаем имя сокету
-  	if(bind(fd_sock_srv, (struct sockaddr *)&sock_srv, sizeof(sock_srv)) == -1) {		
-		perror("ERR: bind() for UDP\n\r");									// сокету присвоено имя
-		exit(1);}
-	printf("[Socket UDP] - bind() ok\n\r");					// опции установлены
-
-	sock_srv.sin_family = AF_INET;  			  // в структуре сервера говорим,о соединении типа IPv4
-    	sock_srv.sin_addr.s_addr = htonl(INADDR_ANY);   // все адреса локальной сети 0.0.0.0
-    	sock_srv.sin_port = htons(UDP_SPORT); 			  // конвертируем данные из узлового порядка расположения байтов в сетевой 
-
- 	socklen_t sock_len = sizeof(sock_srv);			// узнаем размер сокета
-    	for(int i = 0;i<10;i++){
-
-		if(recvfrom(fd_sock_srv, reciev, sizeof(reciev), 0, (struct sockaddr*)&sock_srv, &sock_len) == -1) {
-			perror("Recvfrom:\n\r");
-			exit(1);
-		}
-
-		gettimeofday(&tv, NULL);	// Определение текущего времени и преобразование полученного значения в структуру типа tm. 
- 		ptm = localtime(&tv.tv_sec);
- 		strftime(time_string, sizeof(time_string),"%H:%M:%S", ptm);// Форматирование значения даты и времени с точностью до секунды. 
-
-		memcpy(&ip_hdr_rcv,&reciev[0],20);
-		memcpy(&udp_hdr_rcv,&reciev[20],8);
-		if(ntohs(udp_hdr_rcv.dest)==UDP_SPORT){
-			
-			//memcpy(&ip_hdr_snd,&ip_hdr_rcv,sizeof(struct iphdr));
-			//memcpy(&udp_hdr_snd,&udp_hdr_rcv,sizeof(struct udphdr));
-			ip_hdr_snd.version = 4;//ip_hdr_rcv.version;
-			ip_hdr_snd.ihl = 5;//ip_hdr_rcv.ihl;
-			ip_hdr_snd.tos = 0;//ip_hdr_rcv.tos;
-    		ip_hdr_snd.tot_len = htons(92);//ip_hdr_rcv.tot_len;
-    		ip_hdr_snd.id = 500;//ip_hdr_rcv.id;
-    		ip_hdr_snd.frag_off = 0;//ip_hdr_rcv.frag_off;
-    		ip_hdr_snd.ttl = 65;
-    		ip_hdr_snd.protocol = IPPROTO_UDP;//ip_hdr_rcv.protocol;
-    
-			ip_hdr_snd.saddr=ip_hdr_rcv.daddr;
-			/*printf("ver=%d\n",ip_hdr_rcv.version);
-			printf("ihl=%d\n",ip_hdr_rcv.ihl);
-			printf("tos=%d\n",ip_hdr_rcv.tos);
-			printf("tot_len=%d\n",ip_hdr_rcv.tot_len);
-			printf("id=%d\n",ip_hdr_rcv.id);
-			printf("frag_off=%d\n",ip_hdr_rcv.frag_off);
-			printf("ttl=%d\n",ip_hdr_rcv.ttl);
-			printf("protocol=%d\n",ip_hdr_rcv.protocol);*/
-			ip_hdr_snd.daddr=ip_hdr_rcv.saddr;
-			memcpy(&answer[0],&ip_hdr_snd,sizeof(struct iphdr));
-
-			udp_hdr_snd.source = udp_hdr_rcv.dest;
-			udp_hdr_snd.dest = udp_hdr_rcv.source;
-			udp_hdr_snd.len = udp_hdr_rcv.len;
-			memcpy(&answer[20],&udp_hdr_snd,8);
-			
-			printf("[UDP <-rcv] prot=%u ",ip_hdr_rcv.protocol);
-			//printf("\tdp=%u\tsp=%u\tcrc=%u\tlen=%u\n",ntohs(udp_hdr_rcv.DPORT),ntohs(udp_hdr_rcv.SPORT),ntohs(udp_hdr_rcv.CRC),ntohs(udp_hdr_rcv.LEN));
-			printf("dp=%u sp=%u crc=%u len=%u\n\r",ntohs(udp_hdr_rcv.dest),ntohs(udp_hdr_rcv.source),ntohs(udp_hdr_rcv.check),ntohs(udp_hdr_rcv.len));
-
-			strcat(answer, txt_ans);
-			strcat(answer,time_string);
-
-			if(sendto(fd_sock_srv, answer, strlen(answer), 0, (struct sockaddr*)&sock_srv, sock_len) == -1) {
-				perror("Sendto:\r");
-				exit(1);
-			}
-			printf("[UDP snd->] prot=%u ",ip_hdr_snd.protocol);
-			//printf("\tdp=%u\tsp=%u\tcrc=%u\tlen=%u\n",ntohs(udp_hdr_rcv.DPORT),ntohs(udp_hdr_rcv.SPORT),ntohs(udp_hdr_rcv.CRC),ntohs(udp_hdr_rcv.LEN));
-			printf("dp=%u sp=%u crc=%u len=%u\n\r",ntohs(udp_hdr_snd.dest),ntohs(udp_hdr_snd.source),ntohs(udp_hdr_snd.check),ntohs(udp_hdr_snd.len));
-
-			//printf("\t[UDP->]: %s %s\n",txt_ans,time_string);
-		}
-
-		strncpy(answer,"", 92);
-		strncpy(reciev,"", 92);
-    }
-
-    close(fd_sock_srv);
-    printf("[Socket UDP] - Socket closed\n\r");					// опции установлены
-    return 0;
-}

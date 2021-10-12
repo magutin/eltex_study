@@ -488,8 +488,8 @@ void* run_seq_udp(){
     memset(snd_ptk, 0, packet_size);
     memset(rcv_ptk, 0, packet_size);
 
-    struct ip_h ip_rcv ;
-    struct udp_h udp_rcv;
+    struct iphdr *ip_rcv = (struct iphdr *) rcv_ptk;
+    struct udphdr *udp_rcv = (struct udphdr *) (rcv_ptk + sizeof (struct iphdr));
 
     struct sockaddr_in sck_adrr;		// структура сокета
     int fd_sock;						// десриптор сокета
@@ -519,7 +519,7 @@ void* run_seq_udp(){
     ip->ihl = 5;
     ip->tos = 0;
     ip->tot_len = htons(packet_size);
-    ip->id = 500;
+    ip->id = 0;
     ip->frag_off = 0;
     ip->ttl = 65;
     ip->protocol = IPPROTO_UDP;
@@ -542,7 +542,7 @@ void* run_seq_udp(){
 	for(int i = 0;i<count_packg;i++){
 
 		memset(snd_ptk + sizeof(struct iphdr) + sizeof(struct udphdr), (char)1+i, payload_len);
-
+		ip->id = i;
 		udp->check = 0;
         udp->check = in_cksum((unsigned short *)udp, sizeof(struct udphdr) + payload_len);
         
@@ -557,7 +557,7 @@ void* run_seq_udp(){
         printf("%d packets sent\n", sent);
         
         
-		if(recvfrom(fd_sock, rcv_ptk, sizeof(rcv_ptk), 0, (struct sockaddr*)&sck_adrr, &sock_len) == -1) {
+		if(recvfrom(fd_sock, rcv_ptk, packet_size, 0, (struct sockaddr*)&sck_adrr, &sock_len) == -1) {
 		    perror("ERR: line 81, socket():");
 		    free(snd_ptk);
 			free(rcv_ptk);
@@ -565,14 +565,11 @@ void* run_seq_udp(){
 		    exit(1);
 		}
 
-		memcpy(&ip_rcv,&rcv_ptk[0],20);
-		memcpy(&udp_rcv,&rcv_ptk[20],8);
-
-		int size = sizeof(rcv_ptk);
-		
-		if(ntohs(udp_rcv.DPORT)==UDP_DPORT){
+		printf("prot=%u ",ip_rcv->protocol);
+		printf("dp=%u\n",ntohs(udp_rcv->dest));
+		if(ntohs(udp_rcv->dest)==UDP_DPORT){
 			++recv;
-			printf("%d packets sent\n", sent);
+			printf("%d packets recv\n", sent);
 			
 		}
 		

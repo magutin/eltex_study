@@ -7,5 +7,6 @@
 
 void* thread_tcp_sock();
 void* thread_udp_sock();
+//unsigned long get_time_s();
 
 #endif
