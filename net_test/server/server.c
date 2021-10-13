@@ -202,9 +202,17 @@ int main(){
 					if(cmd_parser(cmd,strlen(cmd))==1){
 						
 						if(ntohs(settings.type_ptk)==2 && ntohs(settings.cmd)==1){
-							cmd_sender(fd_sock,sock);
 							pthread_create(&tid[1], NULL,thread_udp_sock,0);	// поток для сокета UDP			
+							cmd_sender(fd_sock,sock);
 							pthread_join(tid[1], NULL);							// поток с ожиданием завершения
+						}
+						if(ntohs(settings.type_ptk)==1 && ntohs(settings.cmd)==1){
+							pthread_create(&tid[1], NULL,thread_tcp_sock,0);	// поток для сокета TCP			
+							cmd_sender(fd_sock,sock);
+							pthread_join(tid[1], NULL);							// поток с ожиданием завершения
+						}
+						if(ntohs(settings.cmd)==4){
+							cmd_sender(fd_sock,sock);
 						}
 					}
 					strncpy(cmd,"",40);	
@@ -392,7 +400,7 @@ void cmd_sender(int _socket_desk,struct sockaddr_in _sock){
 		//printf("ttl=%u\t",ip_hdr_rcv.TTL);
 		
 		if(ntohs(udp_hdr_rcv.DPORT)==SRV_TCP_SPORT){
-			printf("\t[<-] Client RECIEV the command\n\r");
+			printf("\t[<-] Client RECIEV the command");
 			flag = 1;
 		}	
 
@@ -405,7 +413,7 @@ void cmd_sender(int _socket_desk,struct sockaddr_in _sock){
 		}
 	}
 	if(flag==0){
-		printf("\t[ !] Client no answer!\n\r");
+		printf("\t[ !] Client no answer!");
 	}	
 }
 

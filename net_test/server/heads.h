@@ -44,6 +44,10 @@
 #define UDP_SPORT 60402	// порт сервера
 #define UDP_DPORT 60403	// порт клиента
 
+#define TCP_SPORT 60404	// порт сервера
+#define TCP_DPORT 60405	// порт клиента
+
+
 #pragma pack(push,1)
 /*  Заголовок IP. Сумма байт=20 */
 struct ip_h{
@@ -88,15 +92,18 @@ struct tcp_h{
 	unsigned short DPORT;		// порт назначения
 	unsigned int SEQ_NUM;		// номер последовательности
 	unsigned int ACK_SEQ;		// номер подтверждения
-	unsigned short FLAGS;
-	/*unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв */
+	unsigned char  	tcph_reserved:4,
+				   	tcph_offset	 :4;
+
+	 unsigned int  	tcp_res1  :4,     /*little-endian*/
+       				tcph_hlen :4,     /*length of tcp header in 32-bit words*/
+       				tcph_fin  :1,     /*Finish flag "fin"*/
+       				tcph_syn  :1,     /*Synchronize sequence numbers to start a connection*/
+       				tcph_rst  :1,     /*Reset flag */
+       				tcph_psh  :1,     /*Push, sends data to the application*/
+       				tcph_ack  :1,     /*acknowledge*/
+       				tcph_urg  :1,     /*urgent pointer*/
+ 				    tcph_res2 :2;
 	unsigned short WIND;
 	unsigned short CRC;
 	unsigned short URG_PTR;

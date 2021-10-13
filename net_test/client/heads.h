@@ -12,11 +12,7 @@
 #include <netinet/ip.h>		// для ip заголовка
 #include <netinet/udp.h> 	// для udp заголовка
 #include <netinet/tcp.h>	// для TCP заголовка
-#include <sys/ioctl.h>
 
-#include <signal.h>
-#include <termios.h>
-#include <curses.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -27,6 +23,13 @@
 
 #define UDP_SPORT 60402	// порт сервера
 #define UDP_DPORT 60403	// порт клиента
+
+#define TCP_SPORT 60404	// порт сервера
+#define TCP_DPORT 60405	// порт клиента
+
+struct cmd_settings settings;
+char* ip_s;
+pthread_t th_id;
 
 #pragma pack(push,1)
 /*  Заголовок IP. Сумма байт=20 */
@@ -132,6 +135,14 @@ struct cmd_settings{
 };
 #pragma pack(pop)
 
+unsigned short in_cksum(unsigned short *ptr, int nbytes);
+unsigned long get_time_ms();
+void ns_settings_to_s();
+int rcv_cmd_parser();
+
+void* run_ping();
+void* run_seq_udp();
+void* run_seq_tcp();
 
 
 #endif
