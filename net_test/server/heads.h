@@ -33,6 +33,7 @@
 
 #include <termios.h>
 #include <curses.h>
+#include <fcntl.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -46,6 +47,9 @@
 
 #define TCP_SPORT 60404	// порт сервера
 #define TCP_DPORT 60405	// порт клиента
+
+struct cmd_settings settings;
+pthread_t tid[5];
 
 
 #pragma pack(push,1)
@@ -110,7 +114,7 @@ struct tcp_h{
 
 };
 
-/* Стуктура команды для клиента. Сумма байт=16 */
+/* Стуктура команды для клиента. Сумма байт=20 */
 /*
 <field = cmd>
 	1 - старт тест seqence
@@ -153,9 +157,13 @@ struct cmd_settings{
 	unsigned short time_test;	// время проведения теста
 	unsigned short vlan;		// поддержка 802.1q,802.1p
 	unsigned int ip_cln;		// ip клиента
+	unsigned int ip_srv;		// ip сервера
 };
 #pragma pack(pop)
 
-
+int cmd_parser(char* _buf,int _len_buf);
+void cmd_sender(int _socket_desk,struct sockaddr_in _sock);
+unsigned long get_time_ms();
+unsigned short in_cksum(unsigned short *ptr, int nbytes);
 
 #endif
