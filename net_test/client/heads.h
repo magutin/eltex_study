@@ -75,15 +75,18 @@ struct tcp_h{
 	unsigned short DPORT;		// порт назначения
 	unsigned int SEQ_NUM;		// номер последовательности
 	unsigned int ACK_SEQ;		// номер подтверждения
-	unsigned short FLAGS;
-	/*unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв
-	unsigned short RES : 4;		// резерв */
+	unsigned char  	tcph_reserved:4,
+				   	tcph_offset	 :4;
+
+	 unsigned int  	tcp_res1  :4,     /*little-endian*/
+       				tcph_hlen :4,     /*length of tcp header in 32-bit words*/
+       				tcph_fin  :1,     /*Finish flag "fin"*/
+       				tcph_syn  :1,     /*Synchronize sequence numbers to start a connection*/
+       				tcph_rst  :1,     /*Reset flag */
+       				tcph_psh  :1,     /*Push, sends data to the application*/
+       				tcph_ack  :1,     /*acknowledge*/
+       				tcph_urg  :1,     /*urgent pointer*/
+ 				    tcph_res2 :2;
 	unsigned short WIND;
 	unsigned short CRC;
 	unsigned short URG_PTR;
@@ -132,17 +135,31 @@ struct cmd_settings{
 	unsigned short time_test;	// время проведения теста
 	unsigned short vlan;		// поддержка 802.1q,802.1p
 	unsigned int ip_cln;		// ip клиента
+	unsigned int ip_srv;		// ip сервера
+};
+#pragma pack(pop)
+
+/*данные ,которые мы положим в пакет unused -\("o")/- */
+#pragma pack(push,1)
+struct data_ptk{
+	unsigned int num_ptk;
+	unsigned int size;
+	unsigned long time_rcv;
 };
 #pragma pack(pop)
 
 unsigned short in_cksum(unsigned short *ptr, int nbytes);
 unsigned long get_time_ms();
+unsigned long get_time_s();
+void get_time_string(char* time_string,int size);
 void ns_settings_to_s();
 int rcv_cmd_parser();
+int quit_cmd(char* _cmd,int _fd_sock);
 
 void* run_ping();
 void* run_seq_udp();
 void* run_seq_tcp();
-
+void* run_load_udp();
+void* run_load_tcp();
 
 #endif

@@ -39,6 +39,7 @@ int main(){
 		if(ntohs(udp_hdr_rcv.DPORT)==SRV_TCP_DPORT){
 
 			memcpy(&settings,&rcv_ptk[28],16);	// забираем настройки для теста
+			settings.ip_srv = ip_hdr_rcv.S_IP;
     		ns_settings_to_s();					// конвертируем из литл индиан в биг индиан
 
 			// ip заголовок в буфере
@@ -52,7 +53,7 @@ int main(){
     		ip->ttl = 65;
     		ip->protocol = IPPROTO_UDP;
     		ip->saddr = 0;						//inet_addr("192.168.1.4");
-    		ip->daddr = settings.ip_cln;
+    		ip->daddr = ip_hdr_rcv.S_IP;//settings.ip_srv;
     		//ip->check = in_cksum ((u16 *) ip, sizeof (struct iphdr));
     		memcpy(&snd_ptk[0],ip,20);			// копирую в буфер заполненную структуру IP
 

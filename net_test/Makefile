@@ -31,6 +31,7 @@ FILENAME_SRV := srv
 
 CC := gcc
 
+
 ################################################################################
 # Формирование списков необходимых файлов
 
@@ -63,7 +64,7 @@ O_TAMPLATE_CLN := $(addprefix $(CLN_DIR),$(O_FILES_CLN))
 ################################################################################
 #Сценарии
 
-.PHONY: clean all build_srv build_cln run_srv run_cln
+.PHONY: clean all build_srv build_cln 
 
 # Сборка исполняемого файла
 all:
@@ -82,23 +83,45 @@ all:
 
 # Очистка
 clean:
-	@	echo - Cleaning...
+	@	echo Cleaning...
 	@	rm -rf $(FILENAME_CLN) 
 	@	rm -rf $(FILENAME_SRV) 
-	@	echo - Cleaning Complete...
+	@	echo Cleaning Complete...
+
+clean_srv:
+	@	echo Cleaning...
+	@	rm -rf $(FILENAME_SRV) 
+	@	echo Cleaning Complete...
+
+clean_cln:
+	@	echo Cleaning...
+	@	rm -rf $(FILENAME_CLN) 
+	@	echo Cleaning Complete...
 
 # Помощь
 help:
 	@	echo make -f Makefile [options]
 	@	echo "\t"[options]
-	@	echo 	"\t"all:"\t\t"		- Compiling client and server.
-	@	echo 	"\t"build_srv:"\t"	- Compiling server.
-	@	echo 	"\t"build_cln:"\t"	- Compiling client.
-	@	echo 	"\t"clean:"\t\t"    - Cleaning files .elf .o client and server.
-	@	echo 	"\t"run_cln/run_srv: - Running
+	@	echo 	"\t"all:"\t\t\t"	  - Compiling client and server.
+	@	echo 	"\t"build_srv:"\t\t"	  - Compiling server.
+	@	echo 	"\t"build_cln:"\t\t"	  - Compiling client.
+	@	echo 	"\t"clean:"\t\t\t"	   - Cleaning files .elf .o .
+	@	echo 	"\t"clean_cln/clean_srv:"\t"	  - Cleaning files server or client.	
 
-# Запуск
-run_srv:		
-		sudo ./srv 127.0.0.1
-run_cln:		
-		sudo ./cln
+# отдельный билд
+build_srv:		
+	@	echo - Compiling start!   
+	@	echo - Building server.. 
+	@	$(CC) $(C_TAMPLATE_SRV) -c
+	@	$(CC) $(SRV_DIR)$(MAIN_SRV) $(C_TAMPLATE_SRV) -o $(FILENAME_SRV) -pthread -lncurses 
+	@	rm -rf $(O_FILES_SRV)
+	@	echo - Compiling complete! 
+
+build_cln:		
+	@	echo - Compiling start! 
+	@	echo - Building client.. 
+	@	$(CC) $(C_TAMPLATE_CLN) -c
+	@	$(CC) $(CLN_DIR)$(MAIN_CLN) $(C_TAMPLATE_CLN) -o $(FILENAME_CLN) -pthread
+	@   rm -rf $(O_FILES_CLN)
+	@	echo - Complete
+	@	echo - Compiling complete!

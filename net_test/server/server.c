@@ -1,5 +1,5 @@
 #include "heads.h"
-#include "sockets.h"
+
 
 
 int main(int argc,char** argv){
@@ -44,15 +44,12 @@ int main(int argc,char** argv){
 		perror("ERR: bind_srv():\n\r");
 		exit(1);}
 
-	if ( fcntl( fd_sock, F_SETFL, SOCK_NONBLOCK, on ) == -1 ){
+	if ( fcntl( fd_sock, F_SETFL, O_NONBLOCK, on ) == -1 ){
         printf( "failed to set non-blocking socket\n" );
         return false;}
 	
 	initscr();
 	cbreak();						// не дожидаемся нажатия enter
-	
-	//cbreak();
-	//int x,y;
 	printf("cli> ");
 
 	while(input!=0){	// цикл ввода команд
@@ -61,149 +58,30 @@ int main(int argc,char** argv){
 			case 0x09:// Обработка клавиши TAB
 				++iter;
 				if(iter==1){
-					if(i <= 2){
-						if (cmd[0] == 'q'){
-							len = strlen(cmd);
-							for(k = 0;k<len;k++){
-								printf("\b");	
-								delch();
-							}
-							strncpy(cmd,"",40);
-							strcat(cmd,"quit ");
-							i = 5;
-							iter--;
-							printf("%s",cmd);
-						}
-						if (cmd[0] == 'r'){
-							len = strlen(cmd);
-							for(k = 0;k<len;k++){
-								printf("\b");	
-								delch();
-							}
-							strncpy(cmd,"",40);
-							strcat(cmd,"run ");
-							i = 4;
-							iter--;
-							printf("%s",cmd);
-						}		
-						if (cmd[0] == 's'){
-							len = strlen(cmd);
-							for(k = 0;k<len;k++){
-								printf("\b");	
-								delch();
-							}
-							strncpy(cmd,"",40);
-							strcat(cmd,"set ");
-							i = 4;
-							iter--;
-							printf("%s",cmd);
-						}	
-						break;			
-					}
-					if(i>=3){
-						if (strstr(&cmd[4],"s")!=NULL){
-							len = strlen(cmd);
-							for(k = 0;k<len;k++){
-								printf("\b");	
-								delch();
-							}
-							strcpy(&cmd[4],"seq ");
-							i = 8;
-							printf("%s",cmd);				
-						}
-						if (strstr(&cmd[4],"t")!=NULL){
-							len = strlen(cmd);
-							for(k = 0;k<len;k++){
-								printf("\b");	
-								delch();
-							}
-							strcpy(&cmd[4],"turnoff ");
-							i = 12;
-							printf("%s",cmd);				
-						}
-						if (strstr(&cmd[4],"p")!=NULL){
-							len = strlen(cmd);
-							for(k = 0;k<len;k++){
-								printf("\b");	
-								delch();
-							}
-							strcpy(&cmd[4],"ping ");
-							i = 9;
-							printf("%s",cmd);
-						}
-						if (strstr(&cmd[4],"l")!=NULL){
-							len = strlen(cmd);
-							for(k = 0;k<len;k++){
-								printf("\b");delch();}
-							strcpy(&cmd[4],"load ");
-							i =9;
-							printf("%s",cmd);		
-						}
-					break;
-					iter--;
+					if(i<=2){i=iter_tab1(cmd,i);iter--;break;}
+					if(i>=3){i=iter_tab2(cmd,i);iter--;break;}
 				}
-				
-			}
-			if (iter==2){
-				if((i-1)<=2){
-					strncpy(cmd,"",40);printf("\n\r\trun\tset\tquit");printf("\n\rcli> ");
-					i = 0;
-					iter = 0;	
-				}
-				if((i-1)>=3){
-					strncpy(cmd,"",40);printf("\n\r\tseq\tping\tload");printf("\n\rcli> ");
-					i = 0;
-					iter = 0;	
-				}
-			}	
-			break;
+
+				if (iter==2){
+					if((i-1)<=2){strncpy(cmd,"",40);printf("\n\r\trun\tset\tquit");printf("\n\rcli> ");
+						i = 0;iter = 0;}
+
+					if((i-1)>=3){strncpy(cmd,"",40);printf("\n\r\tseq\tping\tload");printf("\n\rcli> ");
+						i = 0;iter = 0;}
+				}	
+				break;
 
 			case 0x0D:		// Обработка клавиши ENTER
-				if(i == 1){
-					cmd[i] = ' ';	
-				}
-
-				if (strstr(cmd,"quit") != NULL){
-					input=0;
-					strncpy(cmd,"",40);
-					close(fd_sock);
-					printf("\n");
-					endwin();
-					return 0;
-				}
-
-				if (/*(*/strstr(cmd,"set") != NULL) /*|| (strncmp(cmd,"s ",2) == 0))*/{			// отправка команды клиенту на установку настроек
-					// recv set cmd param
-					if(cmd_parser(cmd,strlen(cmd))==1){
-						cmd_sender(fd_sock,sock);
-					}							
-					strncpy(cmd,"",40);	
-				}
-
-				if (strstr(cmd,"run") != NULL){
-					// recv set cmd param
-					if(cmd_parser(cmd,strlen(cmd))==1){
-						
-						if(ntohs(settings.type_ptk)==2 && ntohs(settings.cmd)==1){
-							pthread_create(&tid[1], NULL,thread_udp_sock,0);	// поток для сокета UDP			
-							cmd_sender(fd_sock,sock);
-							pthread_join(tid[1], NULL);							// поток с ожиданием завершения
-						}
-						if(ntohs(settings.type_ptk)==1 && ntohs(settings.cmd)==1){
-							pthread_create(&tid[1], NULL,thread_tcp_sock,0);	// поток для сокета TCP			
-							cmd_sender(fd_sock,sock);
-							pthread_join(tid[1], NULL);							// поток с ожиданием завершения
-						}
-						if(ntohs(settings.cmd)==4){cmd_sender(fd_sock,sock);}
-						if(ntohs(settings.cmd)==2){cmd_sender(fd_sock,sock);}
-					}
-					strncpy(cmd,"",40);	
-				}
+				if(i == 1){cmd[i] = ' ';}
+				if(quit_cmd(cmd,fd_sock)==0){input = 0;break;}
+				set_cmd(cmd,fd_sock,sock);								
+				run_cmd(cmd,fd_sock,sock);
 				printf("\n\rcli> ");
 				strncpy(cmd,"",40); //очищаем буфеr команд
 				iter = 0;
 				i=0;
 				break;
+
 			default:	// обработка любых клафиш
 				cmd[i] = (char)sym;
 				printf("%c",cmd[i]);

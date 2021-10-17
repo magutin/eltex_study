@@ -20,6 +20,9 @@ int rcv_cmd_parser(){
 	//стартуем тест load
 	if(settings.cmd==3){
 		printf("[->] RECIEVE command \"start load\"\n");
+		usleep(1500);
+		if(settings.type_ptk==2){pthread_create(&th_id, NULL,run_load_udp,0);pthread_join(th_id, NULL);}
+		//if(settings.type_ptk==1){pthread_create(&th_id, NULL,run_load_tcp,0);pthread_join(th_id, NULL);}
 	}
 			
 	//завершаем работу
@@ -58,7 +61,8 @@ void ns_settings_to_s(){
 	settings.time_test = ntohs(settings.time_test);
 	settings.vlan = ntohs(settings.vlan);
 	settings.ip_cln = ntohl(settings.ip_cln);
-	ip_n.s_addr = settings.ip_cln;
+	//settings.ip_srv = ntohl(settings.ip_srv);
+	ip_n.s_addr = settings.ip_srv;
 	ip_s=inet_ntoa(ip_n);
 }
 
@@ -88,7 +92,7 @@ unsigned short in_cksum(unsigned short *ptr, int nbytes)
     return (answer);
 }
 
-/* Получить время в секундах*/
+/* Получить время в милисекундах*/
 unsigned long get_time_ms(){
 
 	struct timeval tv;			// структура времени
@@ -100,4 +104,28 @@ unsigned long get_time_ms(){
 	//printf("[%ld]\n",_time_ms);	// милисекунды
 
 	return _time_ms;
+}
+
+/* Получить время в секундах*/
+unsigned long get_time_s(){
+
+	struct timeval tv;			// структура времени
+	struct tm* ptm;	
+	unsigned long _time_s;
+
+	gettimeofday(&tv, NULL);	// Определение текущего времени
+	_time_s = tv.tv_sec;
+	//printf("[%ld]\n",_time_ms);	// милисекунды
+
+	return _time_s;
+}
+
+void get_time_string(char* time_string,int size){
+	strncpy(time_string,"",size);
+	struct timeval tv;			// структура времени
+	struct tm* ptm;	
+	unsigned long _time_s;
+	gettimeofday(&tv, NULL);	// Определение текущего времени и преобразование полученного значения в структуру типа tm. 
+ 	ptm = localtime(&tv.tv_sec);
+ 	strftime(time_string, size,"%H:%M:%S", ptm);// Форматирование значения даты и времени с точностью до секунды. 
 }

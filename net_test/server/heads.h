@@ -1,23 +1,5 @@
 #ifndef	HEADS_H
 #define	HEADS_H
-/*
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-
-#include <sys/time.h>		// для gettimeofday
-#include <sys/types.h>		// для getpid
-#include <sys/socket.h>		// для сокета
-#include <netinet/ip.h>		// для ip заголовка
-#include <netinet/udp.h> 	// для udp заголовка
-#include <netinet/tcp.h>	// для TCP заголовка
-
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <pthread.h>
-*/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,6 +9,8 @@
 #include <sys/time.h>		// для gettimeofday
 #include <sys/types.h>		// для getpid
 #include <sys/socket.h>		// для сокета
+#include <sys/ioctl.h>
+#include <signal.h>
 #include <netinet/ip.h>		// для ip заголовка
 #include <netinet/udp.h> 	// для udp заголовка
 #include <netinet/tcp.h>	// для TCP заголовка
@@ -34,10 +18,9 @@
 #include <termios.h>
 #include <curses.h>
 #include <fcntl.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <pthread.h>
+#include <arpa/inet.h>		// для inet_ntoa
+#include <sys/wait.h>		
+#include <pthread.h>		// для потоков
 
 #define SRV_TCP_SPORT 60400	// порт сервера
 #define SRV_TCP_DPORT 60401	// порт клиента
@@ -49,6 +32,8 @@
 #define TCP_DPORT 60405	// порт клиента
 
 struct cmd_settings settings;
+struct winsize size;
+
 pthread_t tid[5];
 
 
@@ -114,6 +99,7 @@ struct tcp_h{
 
 };
 
+
 /* Стуктура команды для клиента. Сумма байт=20 */
 /*
 <field = cmd>
@@ -157,13 +143,29 @@ struct cmd_settings{
 	unsigned short time_test;	// время проведения теста
 	unsigned short vlan;		// поддержка 802.1q,802.1p
 	unsigned int ip_cln;		// ip клиента
+	//unsigned int ip_ping;		
 	unsigned int ip_srv;		// ip сервера
 };
 #pragma pack(pop)
 
-int cmd_parser(char* _buf,int _len_buf);
-void cmd_sender(int _socket_desk,struct sockaddr_in _sock);
-unsigned long get_time_ms();
-unsigned short in_cksum(unsigned short *ptr, int nbytes);
+
+
+int cmd_parser(char* _buf,int _len_buf);	// парсер команд 
+void cmd_sender(int _socket_desk,struct sockaddr_in _sock);		// отправка команды клиенту
+int quit_cmd(char* _cmd,int _fd_sock);							// команда завершения работы сервера
+void set_cmd(char* _cmd,int _fd_sock,struct sockaddr_in _sock);	// установка настроек
+void run_cmd(char* _cmd,int _fd_sock,struct sockaddr_in _sock);	// запуск теста
+int iter_tab2(char* cmd,int i);				//	Дополнение второй команды по табу
+int iter_tab1(char* cmd,int i);				// Дополнение первой команды по табу
+
+unsigned short in_cksum(unsigned short *ptr, int nbytes);//CRC
+unsigned long get_time_ms();				// получение времени в милисекундах
+unsigned long get_time_s();					// получение времени в секундах
+
+
+void* thread_tcp_sock();					// функция с сокетом TCP seq,передается в поток
+void* thread_udp_sock();					// функция с сокетом UDP seq,передается в поток
+void* thread_udp_sock_load();				// функция с сокетом UDP load,передается в поток
+void* thread_tcp_sock_load();				// функция с сокетом UDP load,передается в поток
 
 #endif

@@ -1,0 +1,28 @@
+[ !] START TEST
+  Time start test: 02:08:49
+   1 packet send seq
+   1 packet reciev seq
+   2 packet send seq
+   2 packet reciev seq
+   3 packet send seq
+   3 packet reciev seq
+   4 packet send seq
+   4 packet reciev seq
+   5 packet send seq
+   5 packet reciev seq
+   6 packet send seq
+   6 packet reciev seq
+   7 packet send seq
+   7 packet reciev seq
+   8 packet send seq
+   8 packet reciev seq
+   9 packet send seq
+   9 packet reciev seq
+   10 packet send seq
+   10 packet reciev seq
+----------------result---------------
+   Package send=10
+   Package reciev=10
+   Len package=88 (20 bytes IP HEADER,8 bytes UDP HEADER)
+  Time end test: 02:08:49
+[ !] END TEST
