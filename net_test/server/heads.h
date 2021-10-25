@@ -31,6 +31,15 @@
 #define TCP_SPORT 60404	// порт сервера
 #define TCP_DPORT 60405	// порт клиента
 
+#define out_seq		"srv_files/test_seq.txt"
+#define out_ping	"srv_files/test_ping.txt"
+#define out_load	"srv_files/test_load.txt"
+
+#define test_seq_u 1
+#define test_seq_t 2
+#define test_ping 3
+#define test_load 4
+
 struct cmd_settings settings;
 struct winsize size;
 
@@ -148,15 +157,24 @@ struct cmd_settings{
 };
 #pragma pack(pop)
 
+#pragma pack(push,1)
+struct agreement{
+	char command[10];
+	char file_name[20];
+	unsigned short size;
+};
+#pragma pack(pop)
 
 
 int cmd_parser(char* _buf,int _len_buf);	// парсер команд 
-void cmd_sender(int _socket_desk,struct sockaddr_in _sock);		// отправка команды клиенту
+void cmd_sender(int _socket_desk);		// отправка команды клиенту
 int quit_cmd(char* _cmd,int _fd_sock);							// команда завершения работы сервера
-void set_cmd(char* _cmd,int _fd_sock,struct sockaddr_in _sock);	// установка настроек
-void run_cmd(char* _cmd,int _fd_sock,struct sockaddr_in _sock);	// запуск теста
+void set_cmd(char* _cmd,int _fd_sock);	// установка настроек
+void run_cmd(char* _cmd,int _fd_sock);	// запуск теста
 int iter_tab2(char* cmd,int i);				//	Дополнение второй команды по табу
 int iter_tab1(char* cmd,int i);				// Дополнение первой команды по табу
+void recv_file(int _fd_sock,int _test_type);
+void get_file_name(char *name_str,int size,int type_test);
 
 unsigned short in_cksum(unsigned short *ptr, int nbytes);//CRC
 unsigned long get_time_ms();				// получение времени в милисекундах

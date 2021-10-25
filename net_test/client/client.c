@@ -1,78 +1,60 @@
 #include "heads.h"
 
-int main(){
-	int fd_sock_cln,turnoff = 0;
-	struct sockaddr_in sock_cln;
-		
-	struct ip_h        ip_hdr_rcv;
-	struct udp_h      udp_hdr_rcv;
+int main(int argc, char** argv){
+	
+	if(argc<2){
+		printf("Invalid args\n");
+		printf("Use: %s <server IP>\n",argv[0]);
+		exit(1);
+	}
+
+	unsigned long saddr = inet_addr(argv[1]);
+
+	int fd_sock_cln,result = 0;
+	struct sockaddr_in sock_srv;
+	struct in_addr ip_n;
+
 	char rcv_ptk[64];
 	char snd_ptk[64];
 
-	memset(&sock_cln, 0, sizeof(sock_cln));					// обнуляем структуру
+	char answer[80];		// буфер для посылки
+	int str_len;			// длина строки сообщения
 
-	sock_cln.sin_family = AF_INET;  					// в структуре сервера говорим,о соединении типа IPv4
-    sock_cln.sin_addr.s_addr = htonl(INADDR_ANY); 		// все адреса локальной сети 0.0.0.0
-    sock_cln.sin_port = htons(SRV_TCP_DPORT); 			// конвертируем данные из узлового порядка расположения байтов в сетевой 
+	memset(&sock_srv, 0, sizeof(sock_srv));	// обнуляем структуру
+    sock_srv.sin_family    = AF_INET;  		// заполняем структуру сервера
+    sock_srv.sin_addr.s_addr = saddr;
+    sock_srv.sin_port = htons(SRV_TCP_SPORT);
+	
+	socklen_t sock_len = sizeof(sock_srv);
 
-    // Сокет UDP бу(дет посылать настройки для теста клиенту
-    if((fd_sock_cln = socket(AF_INET, SOCK_RAW,IPPROTO_UDP)) == -1) {	//получаем дискриптор сокета сервера
-		perror("ERR: line 24, socket():\n\r");
-		exit(1);
-	}
-	int on = 1;
-	if (setsockopt (fd_sock_cln, IPPROTO_IP, IP_HDRINCL, (const char*)&on, sizeof (on)) == -1) {
-        perror("setsockopt");
-        exit (1);
-    }
+	ip_n.s_addr = saddr;
+	ip_s=inet_ntoa(ip_n);
 
-	socklen_t sock_len = sizeof(sock_cln);
+	if((fd_sock_cln = socket(AF_INET, SOCK_STREAM, 0)) == -1) {	// получаем id сокета сервера
+           	perror("ERR: line 14. socket()");exit(1);}
+        
+	
+	if(connect(fd_sock_cln, (struct sockaddr *)&sock_srv, sizeof(sock_srv)) == -1) {	// подклчаемся к серверу
+		perror("ERR: line 21. connect()");exit(1);}
 
-	while(1!=turnoff){
-		if(recvfrom(fd_sock_cln, rcv_ptk, sizeof(rcv_ptk), 0, (struct sockaddr*)&sock_cln, &sock_len)==-1) {
-			perror("Recvfrom:\n\r");
+	printf("Connect to server...\n");
+	printf("Server socket id: %d\n",fd_sock_cln);
+
+	while(turnoff!=result){
+		if(recv(fd_sock_cln, rcv_ptk, sizeof(rcv_ptk), 0) == -1) {
+			perror("ERR: line 49. recv():");
 			exit(1);
 		}
-		memcpy(&ip_hdr_rcv,&rcv_ptk[0],20);
-		memcpy(&udp_hdr_rcv,&rcv_ptk[20],8);
 
-		if(ntohs(udp_hdr_rcv.DPORT)==SRV_TCP_DPORT){
-
-			memcpy(&settings,&rcv_ptk[28],16);	// забираем настройки для теста
-			settings.ip_srv = ip_hdr_rcv.S_IP;
-    		ns_settings_to_s();					// конвертируем из литл индиан в биг индиан
-
-			// ip заголовок в буфере
-   			struct iphdr *ip = (struct iphdr *) snd_ptk;
-    		ip->version = 4;
-    		ip->ihl = 5;
-    		ip->tos = 0;
-    		ip->tot_len = htons(64);
-    		ip->id = 500;
-    		ip->frag_off = 0;
-    		ip->ttl = 65;
-    		ip->protocol = IPPROTO_UDP;
-    		ip->saddr = 0;						//inet_addr("192.168.1.4");
-    		ip->daddr = ip_hdr_rcv.S_IP;//settings.ip_srv;
-    		//ip->check = in_cksum ((u16 *) ip, sizeof (struct iphdr));
-    		memcpy(&snd_ptk[0],ip,20);			// копирую в буфер заполненную структуру IP
-
-    		// udp заголовок в буфере
-    		struct udphdr *udp = (struct udphdr *) (snd_ptk + sizeof (struct iphdr));
-    		udp->source = htons(SRV_TCP_DPORT);
-    		udp->dest = htons(SRV_TCP_SPORT);
-    		udp->len = htons(44);
-			udp->check = in_cksum((unsigned short *)&snd_ptk[20], 44);
-
-    		memcpy(&snd_ptk[20],udp,8);			// копирую в буфер заполненную структуру UDP
+		memcpy(&settings,&rcv_ptk[0],16);	// забираем настройки для теста
     		
-			if(sendto(fd_sock_cln, snd_ptk, sizeof(snd_ptk), 0, (struct sockaddr*)&sock_cln, sock_len)==-1) {
-				perror("\tERR: Command 'set' not send. send():");
-				exit(1);
-			}	
-			//sleep(3);
-			turnoff = rcv_cmd_parser();		
+    	ns_settings_to_s();					// конвертируем из литл индиан в биг индиан    		
+		
+		result = rcv_cmd_parser();	
+		if(result==sndseq_t||result==sndseq_u||result==sndping||result==sndload){
+			send_file(fd_sock_cln,result);
 		}
+		
 	}
 	close(fd_sock_cln);
 	return 0;

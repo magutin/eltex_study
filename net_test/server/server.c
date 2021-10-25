@@ -2,20 +2,7 @@
 
 
 
-int main(int argc,char** argv){
-
-	if (argc < 2) {
-		printf("Invalid args!\n");
-        printf("Use: %s <destination IP>\n", argv[0]);
-        exit(0);
-    }
-
-	int fd_sock;							// десриптор сокета
-	struct sockaddr_in sock;				// структура сокета
-	char cmd[40];							// строка для введенных команд
-
-	unsigned long saddr = inet_addr(argv[1]);
-	
+int main(){
 	char sym;								// посимвольная запись в буфер
 	int input=1;							// для выхода из цикла ввода в буфер
 	int i = 0;								// позиция сивола в буфере
@@ -23,31 +10,42 @@ int main(int argc,char** argv){
 	int len = 0;							// для хранения длины введенной строки
 	int k = 0;								// для стирания символов
 
+	int fd_sock_srv;						// десриптор сокета
+	int fd_sock_cln;						// десриптор сокета
+	struct sockaddr_in srv,cln;				// структура сокета
+	char cmd[40];							// строка для введенных команд
+
 	strncpy(cmd,"",40);
-	memset(&sock, 0, sizeof(sock));					// обнуляем структуру
+	memset(&srv, 0, sizeof(srv));					// обнуляем структуру
 
-	sock.sin_family = AF_INET;  					// в структуре сервера говорим,о соединении типа IPv4
-    sock.sin_addr.s_addr = saddr; 					// ip адрес сокета
-    sock.sin_port = htons(SRV_TCP_SPORT); 			// порт сокета 
+	srv.sin_family = AF_INET;  					// в структуре сервера говорим,о соединении типа IPv4
+    srv.sin_addr.s_addr = INADDR_ANY; 					// ip адрес сокета
+    srv.sin_port = htons(SRV_TCP_SPORT); 			// порт сокета 
 
-    // Сокет UDP будет посылать настройки для теста клиенту
-    if((fd_sock = socket(AF_INET, SOCK_RAW,IPPROTO_UDP)) == -1) {	//получаем дискриптор сокета сервера
-		perror("ERR: socket_srv():\n\r");
-		exit(1);}
+    if((fd_sock_srv = socket(AF_INET, SOCK_STREAM, 0)) == -1) {	//получаем дискриптор сокета сервера
+		perror("ERR: line 24, socket():");exit(1);}
+
+	printf("Server socket id: %d Server IP: %s Server port: %u\n",fd_sock_srv,inet_ntoa(srv.sin_addr),ntohs(srv.sin_port));
 
 	int on = 1;
-	if (setsockopt (fd_sock, IPPROTO_IP, IP_HDRINCL, (const char*)&on, sizeof (on)) == -1) {
+	if (setsockopt (fd_sock_srv, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof (on)) == -1) {
         perror("ERR: setsockopt_srv():");
         exit (1);}
 
-	if(bind(fd_sock, (struct sockaddr *)&sock, sizeof(sock)) == -1) {		// назначаем имя сокету
-		perror("ERR: bind_srv():\n\r");
-		exit(1);}
+	if(bind(fd_sock_srv, (struct sockaddr *)&srv, sizeof(srv)) == -1) {		// назначаем имя сокету
+		perror("ERR: line 29. bind():");close(fd_sock_srv);exit(1);}
 
-	if ( fcntl( fd_sock, F_SETFL, O_NONBLOCK, on ) == -1 ){
-        printf( "failed to set non-blocking socket\n" );
-        return false;}
-	
+	socklen_t sock_len = sizeof(srv);
+
+	if ((listen(fd_sock_srv, 1)) == -1) { 			// готовность принимать пакеты и задаем размер очереди 
+       	perror("ERR: line 36. listen():"); close(fd_sock_srv);exit(1);}
+
+    printf("Waiting connect from client...\n");
+    if((fd_sock_cln = accept(fd_sock_srv, (struct sockaddr *)&cln, &sock_len)) == -1) {		// принять соединение на сокете
+   		perror("ERR: line 43. accept():");close(fd_sock_srv);exit(1);}
+	printf("Client connected!\n");
+    printf("Client ip: %s Client port: %u \n",inet_ntoa(cln.sin_addr),ntohs(cln.sin_port));
+
 	initscr();
 	cbreak();						// не дожидаемся нажатия enter
 	printf("cli> ");
@@ -73,9 +71,9 @@ int main(int argc,char** argv){
 
 			case 0x0D:		// Обработка клавиши ENTER
 				if(i == 1){cmd[i] = ' ';}
-				if(quit_cmd(cmd,fd_sock)==0){input = 0;break;}
-				set_cmd(cmd,fd_sock,sock);								
-				run_cmd(cmd,fd_sock,sock);
+				if(quit_cmd(cmd,fd_sock_cln)==0){input = 0;break;}
+				set_cmd(cmd,fd_sock_cln);								
+				run_cmd(cmd,fd_sock_cln);
 				printf("\n\rcli> ");
 				strncpy(cmd,"",40); //очищаем буфеr команд
 				iter = 0;

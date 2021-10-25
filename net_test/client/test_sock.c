@@ -11,7 +11,7 @@ void* run_ping(){
     char snd_ptk[64];			// буфер отправки
     char rcv_ptk[64];			// буфер приема
     FILE *fping;
-    char name[] = "out_files/test_ping.txt";
+    char name[] = "cln_files/test_ping.txt";
     if ((fping = fopen(name, "w+")) == NULL){
     	printf("ERR: fopen();\n");
     	return 0;}
@@ -24,6 +24,7 @@ void* run_ping(){
 	socklen_t sock_len;			// размер сокета
 
 	struct sockaddr_in sck_adrr_p;
+	struct sockaddr_in sck_rcv;
 	struct icmp_h      icmp_hdr;
 	struct icmp_h      icmp_hdr_rcv;
 	struct ip_h        ip_hdr;
@@ -79,16 +80,14 @@ void* run_ping(){
 	get_time_string(time_string,sizeof(time_string));
 	fprintf(fping,"  Time start test: %s\n",time_string); // Отображение даты и времени с указанием числа миллисекунд. 
 
-	
+	// заполняем структуру сервера
+    sck_adrr_p.sin_family    = AF_INET;  		// константа, определяющая коммуникационный домен "Интернет		
+    sck_adrr_p.sin_addr.s_addr = d_ip;		// IP-адрес - это структура
+	//получаем длину сокета
+	sock_len = sizeof(sck_adrr_p);
 	for(int i = 0;i<settings.cnt_ptk;i++){
-    	
-    	// заполняем структуру сервера
-        sck_adrr_p.sin_family    = AF_INET;  		// константа, определяющая коммуникационный домен "Интернет		
-        sck_adrr_p.sin_addr.s_addr = d_ip;		// IP-адрес - это структура
-        //srv.sin_port = htons(PORT);			// номер порта назначения
 
-		//получаем длину сокета
-		sock_len = sizeof(sck_adrr_p);
+		
 	
 		time_ms = get_time_ms();
 		fprintf(fping,"  [%d]",i);
@@ -121,20 +120,32 @@ void* run_ping(){
         	perror("ERR: line 75, socket():");
         	exit(1);}
 
-        if(recvfrom(fd_sock_p, rcv_ptk, sizeof(rcv_ptk), 0, (struct sockaddr*)&sck_adrr_p, &sock_len) == -1) {
-		   	perror("ERR: line 81, socket():");
-		   	exit(1);
-		}
+        while(1){
+        	if(recvfrom(fd_sock_p, rcv_ptk, sizeof(rcv_ptk), 0, (struct sockaddr*)&sck_rcv, &sock_len) == -1) {
+		   		perror("ERR: line 81, socket():");
+		   		exit(1);
+			}
+			time_ms_check = get_time_ms();
+			memcpy(&ip_hdr_rcv,&rcv_ptk[0],20);
+			memcpy(&icmp_hdr_rcv,&rcv_ptk[20],8);
+			if(icmp_hdr_rcv.TYPE ==0 && icmp_hdr_rcv.TYPE==0){
+				int size = sizeof(rcv_ptk);
+				printf("  %d bytes from: %s icmp_seq=%u ttl=%u time=%ld ms\n",size,inet_ntoa(ip_n),icmp_hdr_rcv.SEQ_NUM,ip_hdr_rcv.TTL,time_ms_check-time_ms);
+				fprintf(fping,"\t%d bytes from: %s icmp_seq=%u ttl=%u time=%ld ms\n",size,inet_ntoa(ip_n),icmp_hdr_rcv.SEQ_NUM,ip_hdr_rcv.TTL,time_ms_check-time_ms);	
+				break;}
 
-		time_ms_check = get_time_ms();
-		memcpy(&ip_hdr_rcv,&rcv_ptk[0],20);
-		memcpy(&icmp_hdr_rcv,&rcv_ptk[20],8);
-		int size = sizeof(rcv_ptk);
-		//ip_hdr_rcv.S_IP = ip_hdr_rcv.S_IP;
-		ip_n.s_addr = ip_hdr_rcv.S_IP;
-		//printf("",size,inet_ntoa(ip_n));
-		printf("  %d bytes from: %s icmp_seq=%u ttl=%u time=%ld ms\n",size,inet_ntoa(ip_n),icmp_hdr_rcv.SEQ_NUM,ip_hdr_rcv.TTL,time_ms_check-time_ms);
-		fprintf(fping,"\t%d bytes from: %s icmp_seq=%u ttl=%u time=%ld ms\n",size,inet_ntoa(ip_n),icmp_hdr_rcv.SEQ_NUM,ip_hdr_rcv.TTL,time_ms_check-time_ms);
+			if(icmp_hdr_rcv.TYPE == 3){
+				printf("  Bad icmp answer! icmp_seq=%u type=%u code=%d time=%ld ms\n",icmp_hdr_rcv.SEQ_NUM,icmp_hdr_rcv.TYPE,icmp_hdr_rcv.CODE,time_ms_check-time_ms);
+				fprintf(fping,"   \tBad icmp answer! icmp_seq=%u type=%u code=%d time=%ld ms\n",icmp_hdr_rcv.SEQ_NUM,icmp_hdr_rcv.TYPE,icmp_hdr_rcv.CODE,time_ms_check-time_ms);}
+			
+        	}
+        
+
+			
+			//ip_hdr_rcv.S_IP = ip_hdr_rcv.S_IP;
+			//ip_n.s_addr = ip_hdr_rcv.S_IP;
+			//printf("",size,inet_ntoa(ip_n));
+			
 		sleep(1); 
  			
 	}
@@ -166,7 +177,7 @@ void* run_seq_tcp(){
     int recv = 0;
     
     FILE *ftcpseq;
-    char name[] = "out_files/test_seq_tcp.txt";
+    char name[] = "cln_files/test_seq_tcp.txt";
     if ((ftcpseq = fopen(name, "w+")) == NULL){
     	printf("ERR: fopen();\n");
     	return 0;}
@@ -324,7 +335,7 @@ void* run_seq_udp(){
     int count_packg;								// количество пакетов
     int payload_len = settings.len_ptk;				// размер блока данных
     FILE *fudpseq;
-    char name[] = "out_files/test_seq_udp.txt";
+    char name[] = "cln_files/test_seq_udp.txt";
     if ((fudpseq = fopen(name, "w+")) == NULL){
     	printf("ERR: fopen();\n");
     	return 0;}
@@ -472,7 +483,7 @@ void* run_load_udp(){
     int sent = 0;
     int recv = 0;
     FILE *fudpload;
-    char name[] = "out_files/test_load_udp.txt";
+    char name[] = "cln_files/test_load_udp.txt";
     if ((fudpload = fopen(name, "w+")) == NULL){
     	printf("ERR: fopen();\n");
     	return 0;}

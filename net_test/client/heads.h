@@ -27,7 +27,14 @@
 #define TCP_SPORT 60404	// порт сервера
 #define TCP_DPORT 60405	// порт клиента
 
+#define sndseq_t 1
+#define sndseq_u 2
+#define sndping 3
+#define sndload 4
+#define turnoff 5
+
 struct cmd_settings settings;
+
 char* ip_s;
 pthread_t th_id;
 
@@ -148,6 +155,14 @@ struct data_ptk{
 };
 #pragma pack(pop)
 
+#pragma pack(push,1)
+struct agreement{
+	char command[10];
+	char file_name[20];
+	unsigned short size;
+};
+#pragma pack(pop)
+
 unsigned short in_cksum(unsigned short *ptr, int nbytes);
 unsigned long get_time_ms();
 unsigned long get_time_s();
@@ -155,6 +170,8 @@ void get_time_string(char* time_string,int size);
 void ns_settings_to_s();
 int rcv_cmd_parser();
 int quit_cmd(char* _cmd,int _fd_sock);
+void send_file(int _fd_sock,int type_test);
+void get_file_name(char *name_str,int sz_str,int type_test);
 
 void* run_ping();
 void* run_seq_udp();
