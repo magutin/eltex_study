@@ -1,58 +1,27 @@
 [ !] START TEST
-  Time start test: 04:30:30
-   Lost = 30.549999 %   24591 sent 21536 recv 0 sucsess
-   Lost = 9.420000 %   10898 sent 9956 recv 0 sucsess
-   Lost = 2.210000 %   4515 sent 4294 recv 0 sucsess
-   Lost = 4.380000 %   3587 sent 3149 recv 0 sucsess
-   Lost = 2.150000 %   2843 sent 2628 recv 0 sucsess
-   Lost = 0.630000 %   2473 sent 2410 recv 0 sucsess
-   Lost = 0.180000 %   2207 sent 2189 recv 0 sucsess
-   Lost = 0.550000 %   2013 sent 1958 recv 0 sucsess
-   Lost = 0.410000 %   1772 sent 1731 recv 0 sucsess
-   Lost = 0.670000 %   1644 sent 1577 recv 0 sucsess
-   Lost = 0.590000 %   1535 sent 1476 recv 0 sucsess
-   Lost = 0.990000 %   1427 sent 1328 recv 0 sucsess
-   Lost = 0.470000 %   1315 sent 1268 recv 0 sucsess
-   Lost = 0.160000 %   1268 sent 1252 recv 0 sucsess
-   Lost = 0.910000 %   1173 sent 1082 recv 0 sucsess
-   Lost = 0.630000 %   1103 sent 1040 recv 0 sucsess
-   Lost = 0.340000 %   1051 sent 1017 recv 0 sucsess
-   Lost = 0.080000 %   1001 sent 993 recv 0 sucsess
-   Lost = 1.240000 %   959 sent 835 recv 0 sucsess
-   Lost = 0.320000 %   904 sent 872 recv 0 sucsess
-   Lost = 0.330000 %   863 sent 830 recv 0 sucsess
-   Lost = 0.070000 %   830 sent 823 recv 0 sucsess
-   Lost = 0.660000 %   802 sent 736 recv 0 sucsess
-   Lost = 0.210000 %   769 sent 748 recv 0 sucsess
-   Lost = 0.310000 %   735 sent 704 recv 0 sucsess
-   Lost = 0.040000 %   716 sent 712 recv 0 sucsess
-   Lost = 0.040000 %   688 sent 684 recv 0 sucsess
-   Lost = 0.110000 %   667 sent 656 recv 0 sucsess
-   Lost = 0.080000 %   642 sent 634 recv 0 sucsess
-   Lost = 0.200000 %   628 sent 608 recv 0 sucsess
-   Lost = 0.130000 %   605 sent 592 recv 0 sucsess
-   Lost = 0.050000 %   585 sent 580 recv 0 sucsess
-   Lost = 0.080000 %   571 sent 563 recv 0 sucsess
-   Lost = 0.060000 %   560 sent 554 recv 0 sucsess
-   Lost = 0.010000 %   541 sent 540 recv 0 sucsess
-   Lost = 0.140000 %   525 sent 511 recv 0 sucsess
-   Lost = 0.020000 %   512 sent 510 recv 0 sucsess
-   Lost = 0.010000 %   503 sent 502 recv 0 sucsess
-   Lost = 0.090000 %   493 sent 484 recv 0 sucsess
-   476 sent 476 recv 1 sucsess
-   Lost = 0.010000 %   476 sent 475 recv 0 sucsess
-   464 sent 464 recv 1 sucsess
-   Lost = 0.010000 %   463 sent 462 recv 0 sucsess
-   Lost = 0.030000 %   452 sent 449 recv 0 sucsess
-   Lost = 0.010000 %   445 sent 444 recv 0 sucsess
-   Lost = 0.030000 %   436 sent 433 recv 0 sucsess
-   425 sent 425 recv 1 sucsess
-   Lost = 0.070000 %   426 sent 419 recv 0 sucsess
-   420 sent 420 recv 1 sucsess
-   418 sent 418 recv 2 sucsess
+  Time start test: 04:45:09
+   Lost = 10.060000 %   23645 sent 22639 recv 0 sucsess
+   Lost = 1.370000 %   11129 sent 10992 recv 0 sucsess
+   Lost = 2.760000 %   5199 sent 4923 recv 0 sucsess
+   Lost = 1.080000 %   3736 sent 3628 recv 0 sucsess
+   Lost = 0.180000 %   3591 sent 3573 recv 0 sucsess
+   Lost = 0.170000 %   2912 sent 2895 recv 0 sucsess
+   Lost = 0.400000 %   2465 sent 2425 recv 0 sucsess
+   Lost = 0.030000 %   2123 sent 2120 recv 0 sucsess
+   Lost = 0.930000 %   1962 sent 1869 recv 0 sucsess
+   Lost = 0.380000 %   1723 sent 1685 recv 0 sucsess
+   Lost = 0.040000 %   1600 sent 1596 recv 0 sucsess
+   Lost = 0.020000 %   1512 sent 1510 recv 0 sucsess
+   1370 sent 1370 recv 1 sucsess
+   Lost = 0.020000 %   1401 sent 1399 recv 0 sucsess
+   Lost = 0.090000 %   1286 sent 1277 recv 0 sucsess
+   Lost = 0.030000 %   1223 sent 1220 recv 0 sucsess
+   Lost = 0.910000 %   1156 sent 1065 recv 0 sucsess
+   1087 sent 1087 recv 1 sucsess
+   1095 sent 1095 recv 2 sucsess
 ----------------result---------------
-   Sucsess test num=50
-   Len package=128 (20 bytes IP H,8 bytes UDP H)
-   Good time sleep=4500 mcs
-  Time end test: 04:32:10
+   Sucsess test num=19
+   Len package=48 (20 bytes IP H,8 bytes UDP H)
+   Good time sleep=1600 mcs
+  Time end test: 04:45:47
 [ !] END TEST

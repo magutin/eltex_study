@@ -156,13 +156,13 @@ void send_file(int _fd_sock,int type_test){
     while(fgets(msg, 80, fname) != NULL){
     	if(send(_fd_sock,msg,sizeof(msg),0)==-1){
 		perror("ERR: line 58. send():");exit(1);}
-		usleep(5000);
     }
     if(send(_fd_sock,"end ptk",80,0)==-1){
 		perror("ERR: line 58. send():");exit(1);}
 	
 	fclose(fname);
 	printf("[->] File send to server\"\n");
+	memset(&settings,0,sizeof(struct cmd_settings));
 }
 
 

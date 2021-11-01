@@ -113,7 +113,7 @@ build_srv:
 	@	echo - Compiling start!   
 	@	echo - Building server.. 
 	@	$(CC) $(C_TAMPLATE_SRV) -c
-	@	$(CC) $(SRV_DIR)$(MAIN_SRV) $(C_TAMPLATE_SRV) -o $(FILENAME_SRV) -pthread -lncurses 
+	@	$(CC) $(SRV_DIR)$(MAIN_SRV) $(C_TAMPLATE_SRV) -o $(FILENAME_SRV) -pthread -lncurses -g 
 	@	rm -rf $(O_FILES_SRV)
 	@	echo - Compiling complete! 
 

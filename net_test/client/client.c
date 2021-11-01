@@ -17,6 +17,8 @@ int main(int argc, char** argv){
 	char rcv_ptk[64];
 	char snd_ptk[64];
 
+	int size_recv = 0;
+
 	char answer[80];		// буфер для посылки
 	int str_len;			// длина строки сообщения
 
@@ -41,19 +43,27 @@ int main(int argc, char** argv){
 	printf("Server socket id: %d\n",fd_sock_cln);
 
 	while(turnoff!=result){
-		if(recv(fd_sock_cln, rcv_ptk, sizeof(rcv_ptk), 0) == -1) {
+		if( (size_recv=recv(fd_sock_cln, rcv_ptk, sizeof(rcv_ptk), 0)) == -1) {
 			perror("ERR: line 49. recv():");
 			exit(1);
 		}
-
-		memcpy(&settings,&rcv_ptk[0],16);	// забираем настройки для теста
-    		
-    	ns_settings_to_s();					// конвертируем из литл индиан в биг индиан    		
-		
-		result = rcv_cmd_parser();	
-		if(result==sndseq_t||result==sndseq_u||result==sndping||result==sndload){
-			send_file(fd_sock_cln,result);
+		if(size_recv==0){
+			printf("Server disconnect...\n");
+			close(fd_sock_cln);
+			return 0;
 		}
+		memcpy(&settings,&rcv_ptk[0],16);	// забираем настройки для теста
+
+		ns_settings_to_s();						// конвертируем из литл индиан в биг индиан
+		
+    	if(settings.cmd>=1 && settings.cmd<=7){
+			result = rcv_cmd_parser();	
+			if(result==sndseq_t||result==sndseq_u||result==sndping||result==sndload){
+				send_file(fd_sock_cln,result);
+			}	
+    	}
+
+    	
 		
 	}
 	close(fd_sock_cln);

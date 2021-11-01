@@ -138,15 +138,7 @@ void* run_ping(){
 				printf("  Bad icmp answer! icmp_seq=%u type=%u code=%d time=%ld ms\n",icmp_hdr_rcv.SEQ_NUM,icmp_hdr_rcv.TYPE,icmp_hdr_rcv.CODE,time_ms_check-time_ms);
 				fprintf(fping,"   \tBad icmp answer! icmp_seq=%u type=%u code=%d time=%ld ms\n",icmp_hdr_rcv.SEQ_NUM,icmp_hdr_rcv.TYPE,icmp_hdr_rcv.CODE,time_ms_check-time_ms);}
 			
-        	}
-        
-
-			
-			//ip_hdr_rcv.S_IP = ip_hdr_rcv.S_IP;
-			//ip_n.s_addr = ip_hdr_rcv.S_IP;
-			//printf("",size,inet_ntoa(ip_n));
-			
-		sleep(1); 
+        	} 
  			
 	}
 	get_time_string(time_string,sizeof(time_string));
@@ -301,9 +293,6 @@ void* run_seq_tcp(){
 				break;
 			}	
         }
-        	
-		//usleep(1000);
-		//sleep(1);
 	}
 	printf("----------------result---------------\n");
 	fprintf(ftcpseq,"----------------result---------------\n");

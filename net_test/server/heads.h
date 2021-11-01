@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <errno.h> 
 #include <sys/time.h>		// для gettimeofday
 #include <sys/types.h>		// для getpid
 #include <sys/socket.h>		// для сокета
@@ -42,7 +43,9 @@
 
 struct cmd_settings settings;
 struct winsize size;
+int _fd;
 
+extern pthread_mutex_t mut;
 pthread_t tid[5];
 
 
@@ -157,33 +160,38 @@ struct cmd_settings{
 };
 #pragma pack(pop)
 
-#pragma pack(push,1)
-struct agreement{
-	char command[10];
-	char file_name[20];
-	unsigned short size;
-};
-#pragma pack(pop)
+typedef struct cln_sockets_param{
+	int fd_sock_srv;
+	int curr_fd;				// текущий дескриптор сокета клиента
+	int fd_sock_cln[5];			// массив десрипторов сокетов клиента
+	struct sockaddr_in srv;		// структура сокета
+	struct sockaddr_in cln;		// структура сокета
+	socklen_t sock_len;
+}sock_param;
 
 
-int cmd_parser(char* _buf,int _len_buf);	// парсер команд 
-void cmd_sender(int _socket_desk);		// отправка команды клиенту
-int quit_cmd(char* _cmd,int _fd_sock);							// команда завершения работы сервера
+int cmd_parser(char* _buf,int _len_buf);// парсер команд 
+void cmd_sender(int _socket_desk);	// отправка команды клиенту
+int quit_cmd(char* _cmd,int _fd_sock);	// команда завершения работы сервера
 void set_cmd(char* _cmd,int _fd_sock);	// установка настроек
 void run_cmd(char* _cmd,int _fd_sock);	// запуск теста
-int iter_tab2(char* cmd,int i);				//	Дополнение второй команды по табу
-int iter_tab1(char* cmd,int i);				// Дополнение первой команды по табу
-void recv_file(int _fd_sock,int _test_type);
-void get_file_name(char *name_str,int size,int type_test);
+int iter_tab2(char* cmd,int i);		// Дополнение второй команды по табу
+int iter_tab1(char* cmd,int i);		// Дополнение первой команды по табу
+void recv_file(int _fd_sock,int _test_type);    	   // Принять файл от клиента
+void clnselect_cmd(char* _cmd,void* _strct);
+void list_cmd(char* _cmd,void* _strct);
+void get_file_name(char *name_str,int size,int type_test); // Получить имя создаваемого файла
+int check_param_types(unsigned long num);
+unsigned short in_cksum(unsigned short *ptr, int nbytes);  //CRC
 
-unsigned short in_cksum(unsigned short *ptr, int nbytes);//CRC
-unsigned long get_time_ms();				// получение времени в милисекундах
-unsigned long get_time_s();					// получение времени в секундах
+unsigned long get_time_ms();		// получение времени в милисекундах
+unsigned long get_time_s();		// получение времени в секундах
 
 
-void* thread_tcp_sock();					// функция с сокетом TCP seq,передается в поток
-void* thread_udp_sock();					// функция с сокетом UDP seq,передается в поток
-void* thread_udp_sock_load();				// функция с сокетом UDP load,передается в поток
-void* thread_tcp_sock_load();				// функция с сокетом UDP load,передается в поток
+void* thread_tcp_sock();		// функция с сокетом TCP seq,передается в поток
+void* thread_udp_sock();		// функция с сокетом UDP seq,передается в поток
+void* thread_udp_sock_load();		// функция с сокетом UDP load,передается в поток
+void* thread_tcp_sock_load();		// функция с сокетом UDP load,передается в поток
+void* accept_new_client(void* _sock_param);
 
 #endif
