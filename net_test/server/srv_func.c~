@@ -253,8 +253,8 @@ void recv_file(int _fd_sock, int _test_type)
     unsigned long time = get_time_ms();
     unsigned long time_check;
     while (1) {
-	time_check = get_time_ms();
-	if ((time_check - time) > 7000) {
+    time_check = get_time_ms();
+    if ((time_check - time) > 7000) {
 	    break;
 	}
 	if ((size_recv = recv(_fd_sock, data, size_str, 0)) == -1) {
@@ -281,28 +281,28 @@ void recv_file(int _fd_sock, int _test_type)
 	}
     }
     printf("\t(%d) bytes of file reciev from client\n\r", all_size);
-    if (all_size == 0) {
-	printf("\tFile is empty!\n\r");
-    } else {
-	printf("\tDo you want save result in file?(y/n): ");
-	char chose = getchar();
-	printf("%c\n\r", chose);
-	if (chose == 'y' || chose == 'Y') {
-	    FILE *fname;
-	    char name[30];
-	    get_file_name(name, 30, _test_type);
-	    if ((fname = fopen(name, "w+")) == NULL) {
-		printf("ERR: fopen();\n");
-		endwin();
-		exit(1);
-	    }
-	    printf("\tFile saved as %s", name);
-	    fwrite(buffer_data, 1, all_size, fname);
-	    fclose(fname);
-	} else {
-	    printf("\tExit without saving");
-	}
-    }
+    if (all_size==0){
+    	printf("\tFile is empty!\n\r");
+    }else{
+    	printf("\tDo you want save result in file?(y/n): ");
+    	char chose = getchar();
+    	printf("%c\n\r", chose);
+    	if (chose == 'y' || chose == 'Y') {
+		FILE *fname;
+		char name[30];
+		get_file_name(name, 30, _test_type);
+		if ((fname = fopen(name, "w+")) == NULL) {
+		    printf("ERR: fopen();\n");
+		    endwin();
+	    	exit(1);
+		}
+		printf("\tFile saved as %s", name);
+		fwrite(buffer_data, 1, all_size, fname);
+		fclose(fname);
+    	} else {
+			printf("\tExit without saving");
+    	}
+    }	
     memset(&settings, 0, sizeof(struct cmd_settings));
     free(buffer_data);
 }
@@ -735,6 +735,7 @@ void *accept_new_client(void *_sock_param)
 	if ((activity < 0) && (errno != EINTR)) {
 	    printf("ERR: select()\n\r");
 	}
+
 
 	// Если что-то случилось с мастер-сокетом,
 	// тогда это входящее соединение

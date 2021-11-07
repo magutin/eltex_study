@@ -2,12 +2,12 @@
 # s.magutin 2021
 # 
 # Файл для автоматической сборки проекта.
-# $(SRV_DIR/CLN_DIR)  			- директория исходных файлов сервера и клиента.
-# $(MAIN_SRV/MAIN_CLN)			- файлы с функцией main 
+# $(SRV_DIR/CLN_DIR) 		- директория исходных файлов сервера и клиента.
+# $(MAIN_SRV/MAIN_CLN)		- файлы с функцией main 
 # $(SOURCES_SRV/SOURCES_CLN)	- Имена исходных файлов
-# $(HEADERS)					- Имена заголовчных файлов
-# $(CC)      		  			- полное имя компилятора.
-# $(FILENAME_CLN/SRV) 			- имя исполняемого файла
+# $(HEADERS)			- Имена заголовчных файлов
+# $(CC)      			- полное имя компилятора.
+# $(FILENAME_CLN/SRV) 		- имя исполняемого файла
 ################################################################################
 # Пути и инициализация файлов
 
@@ -77,7 +77,7 @@ all:
 	@	echo - Building client.. 
 	@	$(CC) $(C_TAMPLATE_CLN) -c
 	@	$(CC) $(CLN_DIR)$(MAIN_CLN) $(C_TAMPLATE_CLN) -o $(FILENAME_CLN) -pthread
-	@   rm -rf $(O_FILES_CLN)
+	@   	rm -rf $(O_FILES_CLN)
 	@	echo - Complete
 	@	echo - Compiling complete!   
 
@@ -111,7 +111,7 @@ help:
 # отдельный билд
 build_srv:		
 	@	echo - Compiling start!   
-	@	echo - Building server.. 
+	@	echo - Building server... 
 	@	$(CC) $(C_TAMPLATE_SRV) -c
 	@	$(CC) $(SRV_DIR)$(MAIN_SRV) $(C_TAMPLATE_SRV) -o $(FILENAME_SRV) -pthread -lncurses -g 
 	@	rm -rf $(O_FILES_SRV)
@@ -119,9 +119,14 @@ build_srv:
 
 build_cln:		
 	@	echo - Compiling start! 
-	@	echo - Building client.. 
-	@	$(CC) $(C_TAMPLATE_CLN) -c
+	@	echo - Building client... 	
 	@	$(CC) $(CLN_DIR)$(MAIN_CLN) $(C_TAMPLATE_CLN) -o $(FILENAME_CLN) -pthread
 	@   rm -rf $(O_FILES_CLN)
-	@	echo - Complete
 	@	echo - Compiling complete!
+	
+d_build_cln:
+	@	echo - Compiling whith debug info start!
+	@	echo - Build client...
+	@	$(CC) $(CLN_DIR)$(MAIN_CLN) $(C_TAMPLATE_CLN) -DDEBUG client/debug.h -o $(FILENAME_CLN) -pthread
+	@   rm -rf $(O_FILES_CLN)
+	@	echo - Compiling whith debug info complete complete!

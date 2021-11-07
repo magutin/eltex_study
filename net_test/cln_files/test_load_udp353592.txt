@@ -1,0 +1,101 @@
+[ !] START TEST
+  Time start test: 22:28:44
+   Lost = 6.350000 %   24033 sent 23398 recv 0 sucsess
+   Lost = 1.270000 %   10732 sent 10605 recv 0 sucsess
+   Lost = 1.240000 %   4096 sent 3972 recv 0 sucsess
+   Lost = 1.140000 %   3252 sent 3138 recv 0 sucsess
+   Lost = 0.320000 %   2994 sent 2962 recv 0 sucsess
+   Lost = 0.460000 %   2412 sent 2366 recv 0 sucsess
+   Lost = 0.350000 %   2189 sent 2154 recv 0 sucsess
+   Lost = 0.120000 %   2050 sent 2038 recv 0 sucsess
+   Lost = 0.100000 %   1778 sent 1768 recv 0 sucsess
+   Lost = 0.170000 %   1628 sent 1611 recv 0 sucsess
+   Lost = 0.300000 %   1519 sent 1489 recv 0 sucsess
+   Lost = 0.140000 %   1402 sent 1388 recv 0 sucsess
+   Lost = 0.120000 %   1311 sent 1299 recv 0 sucsess
+   Lost = 0.270000 %   1257 sent 1230 recv 0 sucsess
+   Lost = 0.270000 %   1174 sent 1147 recv 0 sucsess
+   Lost = 0.220000 %   1097 sent 1075 recv 0 sucsess
+   Lost = 0.220000 %   1056 sent 1034 recv 0 sucsess
+   Lost = 0.120000 %   999 sent 987 recv 0 sucsess
+   Lost = 0.100000 %   944 sent 934 recv 0 sucsess
+   Lost = 0.270000 %   933 sent 906 recv 0 sucsess
+   Lost = 0.010000 %   909 sent 908 recv 0 sucsess
+   Lost = 0.260000 %   841 sent 815 recv 0 sucsess
+   Lost = 0.120000 %   797 sent 785 recv 0 sucsess
+   Lost = 0.260000 %   762 sent 736 recv 0 sucsess
+   Lost = 0.190000 %   735 sent 716 recv 0 sucsess
+   Lost = 0.110000 %   706 sent 695 recv 0 sucsess
+   Lost = 0.270000 %   684 sent 657 recv 0 sucsess
+   Lost = 0.160000 %   664 sent 648 recv 0 sucsess
+   Lost = 0.220000 %   641 sent 619 recv 0 sucsess
+   Lost = 0.330000 %   620 sent 587 recv 0 sucsess
+   Lost = 0.140000 %   602 sent 588 recv 0 sucsess
+   Lost = 0.100000 %   588 sent 578 recv 0 sucsess
+   Lost = 0.090000 %   569 sent 560 recv 0 sucsess
+   Lost = 0.040000 %   553 sent 549 recv 0 sucsess
+   Lost = 0.160000 %   537 sent 521 recv 0 sucsess
+   Lost = 0.210000 %   523 sent 502 recv 0 sucsess
+   Lost = 0.040000 %   509 sent 505 recv 0 sucsess
+   Lost = 0.030000 %   501 sent 498 recv 0 sucsess
+   Lost = 0.100000 %   495 sent 485 recv 0 sucsess
+   Lost = 0.020000 %   475 sent 473 recv 0 sucsess
+   Lost = 0.040000 %   463 sent 459 recv 0 sucsess
+   Lost = 0.050000 %   453 sent 448 recv 0 sucsess
+   Lost = 0.120000 %   442 sent 430 recv 0 sucsess
+   Lost = 0.210000 %   432 sent 411 recv 0 sucsess
+   Lost = 0.180000 %   424 sent 406 recv 0 sucsess
+   Lost = 0.150000 %   416 sent 401 recv 0 sucsess
+   Lost = 0.060000 %   407 sent 401 recv 0 sucsess
+   Lost = 0.080000 %   399 sent 391 recv 0 sucsess
+   Lost = 0.070000 %   391 sent 384 recv 0 sucsess
+   Lost = 0.030000 %   384 sent 381 recv 0 sucsess
+   Lost = 0.010000 %   376 sent 375 recv 0 sucsess
+   Lost = 0.010000 %   369 sent 368 recv 0 sucsess
+   Lost = 0.030000 %   363 sent 360 recv 0 sucsess
+   Lost = 0.030000 %   357 sent 354 recv 0 sucsess
+   350 sent 350 recv 1 sucsess
+   Lost = 0.070000 %   350 sent 343 recv 0 sucsess
+   Lost = 0.050000 %   344 sent 339 recv 0 sucsess
+   Lost = 0.040000 %   338 sent 334 recv 0 sucsess
+   Lost = 0.060000 %   334 sent 328 recv 0 sucsess
+   Lost = 0.090000 %   328 sent 319 recv 0 sucsess
+   Lost = 0.040000 %   322 sent 318 recv 0 sucsess
+   Lost = 0.030000 %   317 sent 314 recv 0 sucsess
+   Lost = 0.070000 %   312 sent 305 recv 0 sucsess
+   Lost = 0.030000 %   307 sent 304 recv 0 sucsess
+   Lost = 0.040000 %   302 sent 298 recv 0 sucsess
+   298 sent 298 recv 1 sucsess
+   Lost = 0.080000 %   298 sent 290 recv 0 sucsess
+   Lost = 0.040000 %   294 sent 290 recv 0 sucsess
+   Lost = 0.010000 %   290 sent 289 recv 0 sucsess
+   Lost = 0.050000 %   286 sent 281 recv 0 sucsess
+   Lost = 0.070000 %   281 sent 274 recv 0 sucsess
+   Lost = 0.050000 %   278 sent 273 recv 0 sucsess
+   274 sent 274 recv 1 sucsess
+   Lost = 0.010000 %   274 sent 273 recv 0 sucsess
+   Lost = 0.060000 %   270 sent 264 recv 0 sucsess
+   Lost = 0.020000 %   267 sent 265 recv 0 sucsess
+   Lost = 0.010000 %   263 sent 262 recv 0 sucsess
+   260 sent 260 recv 1 sucsess
+   Lost = 0.040000 %   259 sent 255 recv 0 sucsess
+   Lost = 0.030000 %   255 sent 252 recv 0 sucsess
+   Lost = 0.010000 %   252 sent 251 recv 0 sucsess
+   250 sent 250 recv 1 sucsess
+   Lost = 0.030000 %   251 sent 248 recv 0 sucsess
+   Lost = 0.040000 %   251 sent 247 recv 0 sucsess
+   244 sent 244 recv 1 sucsess
+   Lost = 0.010000 %   243 sent 242 recv 0 sucsess
+   Lost = 0.010000 %   240 sent 239 recv 0 sucsess
+   238 sent 238 recv 1 sucsess
+   Lost = 0.010000 %   238 sent 237 recv 0 sucsess
+   Lost = 0.030000 %   235 sent 232 recv 0 sucsess
+   Lost = 0.010000 %   232 sent 231 recv 0 sucsess
+   229 sent 229 recv 1 sucsess
+   229 sent 229 recv 2 sucsess
+----------------result---------------
+   Sucsess test num=93
+   Len package=38 (20 bytes IP H,8 bytes UDP H)
+   Good time sleep=8400 mcs
+  Time end test: 22:31:50
+[ !] END TEST

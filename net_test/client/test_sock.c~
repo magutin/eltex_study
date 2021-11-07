@@ -12,15 +12,15 @@ void *run_ping()
     char snd_ptk[64];		// буфер отправки
     char rcv_ptk[64];		// буфер приема
     FILE *fping;
-    char name[40];		// = "cln_files/test_ping.txt";
-    get_file_name(name, 40, sndping);
-
-    if (create_file(name) == 1)
-	return 0;
+    char name[40];// = "cln_files/test_ping.txt";
+    get_file_name(name,40,sndping);
+    
+    if(create_file(name)==1)
+    	return 0;
 
     if ((fping = fopen(name, "w")) == NULL) {
-	printf("ERR: fopen();\n");
-	return 0;
+		printf("ERR: fopen();\n");
+		return 0;
     }
     char time_string[15];	// строка для хранения времени
 
@@ -77,8 +77,9 @@ void *run_ping()
 	exit(1);
     }
 
-    if (setsockopt(fd_sock_p, IPPROTO_IP, IP_HDRINCL, &(int) { 1 },
-		   sizeof(int)) == -1) {
+    if (setsockopt
+	(fd_sock_p, IPPROTO_IP, IP_HDRINCL, &(int) { 1 },
+	 sizeof(int)) == -1) {
 	perror("setsockopt");
 	exit(1);
     }
@@ -132,7 +133,7 @@ void *run_ping()
 	if (sendto
 	    (fd_sock_p, snd_ptk, sizeof(snd_ptk), 0,
 	     (struct sockaddr *) &sck_adrr_p, sock_len) == -1) {
-	    perror("ERR: File test_sock.c, line 132, socket():");
+	    perror("ERR: line 75, socket():");
 	    exit(1);
 	}
 
@@ -140,7 +141,7 @@ void *run_ping()
 	    if (recvfrom
 		(fd_sock_p, rcv_ptk, sizeof(rcv_ptk), 0,
 		 (struct sockaddr *) &sck_rcv, &sock_len) == -1) {
-		perror("ERR:File test_sock.c, line 140, socket():");
+		perror("ERR: line 81, socket():");
 		exit(1);
 	    }
 	    time_ms_check = get_time_ms();
@@ -202,15 +203,15 @@ void *run_seq_tcp()
     int recv = 0;
 
     FILE *ftcpseq;
-    char name[40];		// = "cln_files/test_seq_tcp.txt";
-    get_file_name(name, 40, sndseq_t);
-
-    if (create_file(name) == 1)
-	return 0;
+    char name[40];// = "cln_files/test_seq_tcp.txt";
+    get_file_name(name,40,sndseq_t);
+    
+    if(create_file(name)==1)
+    	return 0;
 
     if ((ftcpseq = fopen(name, "w")) == NULL) {
-	printf("ERR: File test_sock.c, line 211, fopen():\n");
-	return 0;
+		printf("ERR: fopen();\n");
+		return 0;
     }
     char time_string[15];	// строка для хранения времени
 
@@ -232,7 +233,7 @@ void *run_seq_tcp()
     char *rcv_ptk = (char *) malloc(packet_size);	// буфер приема      
 
     if (!snd_ptk || !rcv_ptk) {
-	perror("ERR: File test_sock.c, line 234, malloc()");
+	perror("ERR: out of memory: rcv_ptk || snd_ptk");
 	exit(1);
     }
     // Обнуляем буферы
@@ -245,7 +246,7 @@ void *run_seq_tcp()
 
     // Создаем сокет в зависимости от выбранного протокола
     if ((fd_sock = socket(AF_INET, SOCK_RAW, IPPROTO_TCP)) == -1) {
-	perror("ERR: File test_sock.c, line 247, socket()");
+	perror("ERR: socket();\n");
 	FREE_MEM;
 	exit(1);
     }
@@ -255,7 +256,7 @@ void *run_seq_tcp()
     if (setsockopt
 	(fd_sock, IPPROTO_IP, IP_HDRINCL, (const char *) &on,
 	 sizeof(on)) == -1) {
-	perror("ERR: File test_sock.c, line 255, setsockopt()");
+	perror("setsockopt");
 	FREE_MEM;
 	close(fd_sock);
 	exit(1);
@@ -309,7 +310,7 @@ void *run_seq_tcp()
 
 	//memset(snd_ptk + sizeof(struct iphdr) + sizeof(struct tcphdr), (char)1+i, payload_len);
 	if (sendto(fd_sock, snd_ptk, packet_size, 0, (struct sockaddr *) &sck_adrr, sock_len) < 1) {	// отправляем сообщение
-	    perror("ERR: File test_sock.c, line 311, sendto()");
+	    perror("ERR: sendto()");
 	    FREE_MEM;
 	    close(fd_sock);
 	    exit(1);
@@ -323,7 +324,7 @@ void *run_seq_tcp()
 	    if (recvfrom
 		(fd_sock, rcv_ptk, packet_size, 0,
 		 (struct sockaddr *) &sck_adrr, &sock_len) == -1) {
-		perror("ERR: File test_sock.c, line 323, recvfrom():");
+		perror("ERR: line 81, socket():");
 		FREE_MEM;
 		close(fd_sock);
 		exit(1);
@@ -373,15 +374,15 @@ void *run_seq_udp()
     int count_packg;		// количество пакетов
     int payload_len = settings.len_ptk;	// размер блока данных
     FILE *fudpseq;
-    char name[40];		//= "cln_files/test_seq_udp.txt";
-    get_file_name(name, 40, sndseq_u);
-
-    if (create_file(name) == 1)
-	return 0;
+    char name[40];//= "cln_files/test_seq_udp.txt";
+    get_file_name(name,40,sndseq_u);
+    
+    if(create_file(name)==1)
+    	return 0;
 
     if ((fudpseq = fopen(name, "w")) == NULL) {
-	printf("ERR: File test_sock.c, line 382, fopen():\n");
-	return 0;
+		printf("ERR: fopen();\n");
+		return 0;
     }
     char time_string[15];	// строка для хранения времени
 
@@ -407,8 +408,8 @@ void *run_seq_udp()
     char *snd_ptk = (char *) malloc(packet_size);	// буфер отправки
     char *rcv_ptk = (char *) malloc(packet_size);	// буфер приема      
     if (!snd_ptk || !rcv_ptk) {
-	perror("ERR: File test_sock.c, line 407/408, malloc()");
-	exit(1);
+		perror("ERR: out of memory: rcv_ptk || snd_ptk");
+		exit(1);
     }
     // Обнуляем буферы
     memset(snd_ptk, 0, packet_size);
@@ -424,7 +425,7 @@ void *run_seq_udp()
 
     // Создаем сокет в зависимости от выбранного протокола
     if ((fd_sock = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) == -1) {
-	perror("ERR: File test_sock.c, line 426, socket()");
+	perror("ERR: socket();\n");
 	FREE_MEM;
 	exit(1);
     }
@@ -433,7 +434,7 @@ void *run_seq_udp()
     if (setsockopt
 	(fd_sock, IPPROTO_IP, IP_HDRINCL, (const char *) &on,
 	 sizeof(on)) == -1) {
-	perror("ERR: File test_sock.c, line 433, setsockopt()");
+	perror("setsockopt");
 	FREE_MEM;
 	close(fd_sock);
 	exit(1);
@@ -479,7 +480,7 @@ void *run_seq_udp()
 		     sizeof(struct udphdr) + payload_len);
 
 	if (sendto(fd_sock, snd_ptk, packet_size, 0, (struct sockaddr *) &sck_adrr, sock_len) < 1) {	// отправляем сообщение
-	    perror("ERR: File test_sock.c, line 481, sendto()");
+	    perror("ERR: line 28. send()");
 	    FREE_MEM;
 	    close(fd_sock);
 	    exit(1);
@@ -492,7 +493,7 @@ void *run_seq_udp()
 	    if (recvfrom
 		(fd_sock, rcv_ptk, packet_size, 0,
 		 (struct sockaddr *) &sck_adrr, &sock_len) == -1) {
-		perror("ERR: File test_sock.c, line 492, recvfrom()");
+		perror("ERR: line 81, socket():");
 		FREE_MEM;
 		close(fd_sock);
 		exit(1);
@@ -540,14 +541,14 @@ void *run_load_udp()
     int sent = 0;
     int recv = 0;
     FILE *fudpload;
-    char name[40];		//= "cln_files/test_load_udp.txt";
-    get_file_name(name, 40, sndload);
+    char name[40]; //= "cln_files/test_load_udp.txt";
+    get_file_name(name,40,sndload);
 
-    if (create_file(name) == 1)
-	return 0;
+    if(create_file(name)==1)
+    	return 0;
 
     if ((fudpload = fopen(name, "w")) == NULL) {
-	printf("ERR: File test_sock.c, line 549, fopen():\n");
+	printf("ERR: fopen();\n");
 	return 0;
     }
     char time_string[15];	// строка для хранения времени
@@ -574,7 +575,7 @@ void *run_load_udp()
     char *snd_ptk = (char *) malloc(packet_size);	// буфер отправки
     char *rcv_ptk = (char *) malloc(packet_size);	// буфер приема      
     if (!snd_ptk || !rcv_ptk) {
-	perror("ERR: File test_sock.c, line 574/575, malloc()");
+	perror("ERR: out of memory: rcv_ptk || snd_ptk");
 	exit(1);
     }
     // Обнуляем буферы
@@ -594,7 +595,7 @@ void *run_load_udp()
 
     // Создаем сокет в зависимости от выбранного протокола
     if ((fd_sock = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) == -1) {
-	perror("ERR: File test_sock.c, line 596, socket():\n");
+	perror("ERR: socket();\n");
 	FREE_MEM;
 	exit(1);
     }
@@ -603,7 +604,7 @@ void *run_load_udp()
     if (setsockopt
 	(fd_sock, IPPROTO_IP, IP_HDRINCL, (const char *) &on,
 	 sizeof(on)) == -1) {
-	perror("ERR: File test_sock.c, line 596, setsockopt()");
+	perror("setsockopt");
 	FREE_MEM;
 	close(fd_sock);
 	exit(1);
@@ -682,7 +683,7 @@ void *run_load_udp()
 		     sizeof(struct udphdr) + payload_len);
 	//printf("packet_size = %d",packet_size);
 	if (sendto(fd_sock, snd_ptk, packet_size, 0, (struct sockaddr *) &sck_adrr, sock_len) < 1) {	// отправляем сообщение
-	    perror("ERR: File test_sock.c, line 684, sendto()");
+	    perror("ERR: sendto()");
 	    FREE_MEM;
 	    close(fd_sock);
 	    exit(1);
@@ -694,7 +695,7 @@ void *run_load_udp()
 	if (recvfrom
 	    (fd_sock, rcv_ptk, packet_size, 0,
 	     (struct sockaddr *) &sck_adrr, &sock_len) == -1) {
-	    perror("ERR: File test_sock.c, line 694, recvfrom():");
+	    perror("ERR: line 81, socket():");
 	    FREE_MEM;
 	    close(fd_sock);
 	    exit(1);

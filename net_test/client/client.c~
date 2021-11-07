@@ -33,26 +33,24 @@ int main(int argc, char **argv)
 
     ip_n.s_addr = saddr;
     ip_s = inet_ntoa(ip_n);
-
+    
     if ((fd_sock_cln = socket(AF_INET, SOCK_STREAM, 0)) == -1) {	// получаем id сокета сервера
-	perror("ERR: socket(). file client.c, line 37");
-	exit(1);
+		perror("ERR: socket(). file client.c, line 37");
+		exit(1);
     }
 
-    printf("Connect to server...\n");
+    printf("Connect to server...\n");    
     if (connect(fd_sock_cln, (struct sockaddr *) &sock_srv, sizeof(sock_srv)) == -1) {	// подклчаемся к серверу
-	perror("ERR: connect(). file client.c, line 43");
-	exit(1);
+		perror("ERR: connect(). file client.c, line 43");
+		exit(1);
     }
 
-    printf("Server socket id %d,server port %u, server ip %s\n",
-	   fd_sock_cln, ntohs(sock_srv.sin_port),
-	   inet_ntoa(sock_srv.sin_addr));
+    printf("Server socket id %d,server port %u, server ip %s\n", fd_sock_cln,ntohs(sock_srv.sin_port),inet_ntoa(sock_srv.sin_addr));
 
     while (turnoff != result) {
 	if ((size_recv =
 	    recv(fd_sock_cln, rcv_ptk, sizeof(rcv_ptk), 0)) == -1) {
-	    perror("ERR: recv(). file client.c, line 54");
+	    perror("ERR: recv(). file client.c, line 52");
 	    exit(1);
 	}
 	if (size_recv == 0) {
